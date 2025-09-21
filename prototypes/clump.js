@@ -31,20 +31,15 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 		culm.id = clump.id + "/" + counter
 		culm.createdat = performance.now()
 		
-		// Position culms in a circular pattern within the clump
-		// Center culm at clump center, others distributed around
-		if (i === 0) {
-			culm.xyz = [clump.xyz[0], 0, clump.xyz[2]]
-		} else {
-			// Distribute culms in concentric circles
-			const angle = (i / max) * 2 * Math.PI
-			const distance = (Math.random() * 0.7 + 0.3) * clumpRadius // 30-100% of radius
-			culm.xyz = [
-				clump.xyz[0] + Math.cos(angle) * distance,
-				0,
-				clump.xyz[2] + Math.sin(angle) * distance
-			]
-		}
+		// Position culms randomly within the clump area
+		// Use polar coordinates for natural circular distribution
+		const angle = Math.random() * 2 * Math.PI
+		const distance = Math.random() * clumpRadius * 0.8 // Keep within 80% of radius
+		culm.xyz = [
+			clump.xyz[0] + Math.cos(angle) * distance,
+			0,
+			clump.xyz[2] + Math.sin(angle) * distance
+		]
 		
 		culm.hwd = [0, 0, 0] // height, width, depth - will grow over time
 		culm.age = 0 // age in days

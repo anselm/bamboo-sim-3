@@ -1,5 +1,6 @@
 import { prototypical_entity } from './entity.js';
 import { prototypical_dendrocalamus_asper_clump } from './clump.js';
+import { prototypical_coffee_row } from './coffeerow.js';
 import { deepClone } from '../utils/deepClone.js';
 
 // A prototypical plot
@@ -14,6 +15,10 @@ export const prototypical_plot = {
 	
 	// Energy economics
 	USD_PER_MEGAJOULE: 0.0278, // Based on $0.10 per kWh (1 kWh = 3.6 MJ)
+	
+	// Intercropping settings
+	ENABLE_INTERCROPPING: false,
+	COFFEE_ROW_SPACING: 4,  // Place coffee rows every 4 meters
 	
 	// Accumulated statistics
 	cumulativeHarvest: 0,
@@ -80,39 +85,86 @@ prototypical_plot.onreset = function({width,depth}) {
 		}
 	}
 	
-	console.log(`  Total clumps created: ${plot.children.length}`)
-	console.log(`  Actual density: ${(plot.children.length / (width * depth / 10000)).toFixed(2)} clumps per hectare`)
+	console.log(`  Total clumps created: ${plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length}`)
+	console.log(`  Actual density: ${(plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length / (width * depth / 10000)).toFixed(2)} clumps per hectare`)
+	
+	// Add coffee rows if intercropping is enabled
+	if (plot.ENABLE_INTERCROPPING) {
+		console.log(`\nAdding coffee rows for intercropping...`)
+		let coffeeCounter = 1
+		
+		// Place coffee rows between bamboo clumps
+		for (let z = startOffset + plot.COFFEE_ROW_SPACING; z < depth - plot.COFFEE_ROW_SPACING; z += minSpacing) {
+			// Skip rows that would be too close to bamboo
+			if ((z - startOffset) % minSpacing < plot.COFFEE_ROW_SPACING) continue
+			
+			const coffeeRow = deepClone(prototypical_coffee_row)
+			coffeeRow.parent = plot.id
+			coffeeRow.id = plot.id + "/coffee/" + coffeeCounter
+			coffeeRow.volume.xyz = [startOffset, 0, z]
+			coffeeRow.onreset()
+			plot.children.push(coffeeRow)
+			coffeeCounter++
+		}
+		
+		console.log(`  Total coffee rows created: ${coffeeCounter - 1}`)
+		console.log(`  Total coffee plants: ${(coffeeCounter - 1) * prototypical_coffee_row.PLANTS_PER_ROW}`)
+	}
 }
 
 prototypical_plot.onstep = function(daysElapsed) {
 	const plot = this
 	
-	// Growth phase - update all culms
-	let totalHeight = 0
+	// Growth phase - update all plants
+	let totalBambooHeight = 0
 	let culmCount = 0
+	let totalCoffeeHeight = 0
+	let coffeePlantCount = 0
 	
-	plot.children.forEach(clump => {
-		clump.children.forEach(culm => {
-			culm.ontick(daysElapsed)
-			totalHeight += culm.volume.hwd[0]
-			culmCount++
-		})
+	plot.children.forEach(entity => {
+		if (entity.metadata.title === 'Bamboo Clump') {
+			entity.children.forEach(culm => {
+				culm.ontick(daysElapsed)
+				totalBambooHeight += culm.volume.hwd[0]
+				culmCount++
+			})
+		} else if (entity.metadata.title === 'Coffee Row') {
+			entity.children.forEach(plant => {
+				plant.ontick(daysElapsed)
+				totalCoffeeHeight += plant.volume.hwd[0]
+				coffeePlantCount++
+			})
+		}
 	})
 	
-	// Harvest phase - check each clump
-	let stepHarvest = 0
+	// Harvest phase - check bamboo and coffee
+	let stepBambooHarvest = 0
+	let stepCoffeeHarvest = 0
 	let stepValue = 0
 	let stepCO2 = 0
 	let stepCostJoules = 0
 	
-	plot.children.forEach(clump => {
-		const beforeHarvest = clump.totalHarvested
-		const beforeCost = clump.totalCostJoules
-		
-		clump.onharvest()
-		
-		stepHarvest += clump.totalHarvested - beforeHarvest
-		stepCostJoules += clump.totalCostJoules - beforeCost
+	// Calculate day of year for coffee harvest timing
+	const dayOfYear = (plot.simulationStats.days[plot.simulationStats.days.length - 1] || 0) % 365
+	
+	plot.children.forEach(entity => {
+		if (entity.metadata.title === 'Bamboo Clump') {
+			const beforeHarvest = entity.totalHarvested
+			const beforeCost = entity.totalCostJoules
+			
+			entity.onharvest()
+			
+			stepBambooHarvest += entity.totalHarvested - beforeHarvest
+			stepCostJoules += entity.totalCostJoules - beforeCost
+		} else if (entity.metadata.title === 'Coffee Row') {
+			const beforeHarvest = entity.totalHarvested
+			const beforeCost = entity.totalCostJoules
+			
+			entity.onharvest(dayOfYear)
+			
+			stepCoffeeHarvest += entity.totalHarvested - beforeHarvest
+			stepCostJoules += entity.totalCostJoules - beforeCost
+		}
 	})
 	
 	// Update plot cumulative stats from clumps
@@ -134,7 +186,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 		: daysElapsed
 		
 	plot.simulationStats.days.push(currentDay)
-	plot.simulationStats.totalGrowth.push(totalHeight / culmCount) // average height
+	plot.simulationStats.totalGrowth.push(totalBambooHeight / (culmCount || 1)) // average bamboo height
 	plot.simulationStats.totalHarvest.push(plot.cumulativeHarvest)
 	plot.simulationStats.economicYield.push(plot.cumulativeValue)
 	plot.simulationStats.co2Sequestered.push(plot.cumulativeCO2)
@@ -143,8 +195,11 @@ prototypical_plot.onstep = function(daysElapsed) {
 	// Return step info for logging
 	return {
 		currentDay,
-		avgHeight: totalHeight / culmCount,
-		stepHarvest,
-		culmCount
+		avgBambooHeight: totalBambooHeight / (culmCount || 1),
+		avgCoffeeHeight: totalCoffeeHeight / (coffeePlantCount || 1),
+		stepBambooHarvest,
+		stepCoffeeHarvest,
+		culmCount,
+		coffeePlantCount
 	}
 }

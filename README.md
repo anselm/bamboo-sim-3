@@ -23,13 +23,16 @@ npm run start
 - [x] Concept of harvesting
 - [x] Run simulation over a 10 year period at low resolution
 - [x] Log statistics at each step: total growth, harvest, economic yield, CO2
+- [x] Coffee intercropping system with seasonal harvests
+- [x] Separate tracking for bamboo and coffee yields
 
 ## Future Features
 
 - Invent an idea of elevation that affects growth rate
 - Invent an idea of slope and slope facing that affects growth rate
 - Invent an idea of pests (just a field effect) that affects growth rate
-- Invent another organism, such as coffee, and try intercropping
+- Model intercropping benefits (soil health, moisture retention, etc.)
+- Add more intercrop options (ginger, turmeric, medicinal plants)
 
 ## Usage
 

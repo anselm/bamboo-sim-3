@@ -124,6 +124,10 @@ prototypical_plot.onreset = function() {
 				                   ((z - startOffset + coffeeOffset) % minSpacing) < 1
 				
 				if (!isBambooRow) {
+					// Check if coffee row would extend beyond plot boundaries
+					const rowLength = prototypical_coffee_row.coffeerow.PLANTS_PER_ROW * prototypical_coffee_row.coffeerow.PLANT_SPACING
+					if (x + rowLength > plot.field.width) continue
+					
 					const coffeeRow = deepClone(prototypical_coffee_row)
 					coffeeRow.parent = plot.id
 					coffeeRow.id = plot.id + "/coffee/" + coffeeCounter

@@ -47,11 +47,13 @@ prototypical_coffee_row.onreset = function() {
 		plant.createdat = performance.now()
 		
 		// Position plants along the row (assuming row runs along X axis)
-		plant.volume.xyz = [
-			row.volume.xyz[0] + (i * row.coffeerow.PLANT_SPACING),
-			0,
-			row.volume.xyz[2]
-		]
+		// Ensure plants don't extend beyond plot boundaries
+		const plantX = row.volume.xyz[0] + (i * row.coffeerow.PLANT_SPACING)
+		
+		// Skip plants that would be outside the plot
+		if (plantX >= 100) break  // Assuming 100m plot width
+		
+		plant.volume.xyz = [plantX, 0, row.volume.xyz[2]]
 		
 		plant.coffee.age = 0
 		row.coffeerow.totalCostJoules += plant.coffee.JOULES_PER_PLANTING

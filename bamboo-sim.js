@@ -27,6 +27,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 			console.log(`  Economic yield: $${plot.cumulativeValue.toFixed(2)}`)
 			console.log(`  CO2 sequestered: ${plot.cumulativeCO2.toFixed(2)}kg`)
 			console.log(`  Energy invested: ${(plot.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
+			console.log(`  Cost invested: $${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(2)}`)
 			console.log(`  Harvest this year: ${stepInfo.stepHarvest} culms`)
 		}
 	}
@@ -71,8 +72,9 @@ function main() {
 	console.log(`  Total economic yield: $${plot.cumulativeValue.toFixed(2)}`)
 	console.log(`  Total CO2 sequestered: ${plot.cumulativeCO2.toFixed(2)}kg`)
 	console.log(`  Total energy invested: ${(plot.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
+	console.log(`  Total cost invested: $${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(2)}`)
 	console.log(`  Average yield per hectare: $${(plot.cumulativeValue / (100 * 100 / 10000)).toFixed(2)}`)
-	console.log(`  Net energy balance: ${((plot.cumulativeValue * 3600000 - plot.cumulativeCostJoules) / 1000000).toFixed(2)} MJ`) // Assuming $1 = 1 kWh equivalent
+	console.log(`  Net profit: $${(plot.cumulativeValue - (plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE)).toFixed(2)}`)
 }
 
 // Run the simulation when the file is loaded

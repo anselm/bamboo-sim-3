@@ -12,6 +12,9 @@ export const prototypical_plot = {
 		unsplashImage: 'https://images.unsplash.com/photo-1518756131217-31eb79b20e8f'
 	},
 	
+	// Energy economics
+	USD_PER_MEGAJOULE: 0.0278, // Based on $0.10 per kWh (1 kWh = 3.6 MJ)
+	
 	// Accumulated statistics
 	cumulativeHarvest: 0,
 	cumulativeValue: 0,

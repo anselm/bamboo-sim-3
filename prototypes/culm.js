@@ -28,9 +28,9 @@ prototypical_dendrocalamus_asper_culm.ontick = function(daysElapsed) {
 	// S-curve growth: rapid at first, slowing with age
 	// Using logistic growth function
 	// Logistic S-curve formula
-	culm.hwd[0] = culm.MAX_HEIGHT_METERS / (1 + Math.exp(-culm.GROWTH_RATE * (culm.age - culm.GROWTH_MIDPOINT_DAYS)))
+	culm.volume.hwd[0] = culm.MAX_HEIGHT_METERS / (1 + Math.exp(-culm.GROWTH_RATE * (culm.age - culm.GROWTH_MIDPOINT_DAYS)))
 	
 	// Width grows proportionally but slower
-	culm.hwd[1] = culm.hwd[0] * culm.WIDTH_TO_HEIGHT_RATIO
-	culm.hwd[2] = culm.hwd[1] // depth same as width (circular)
+	culm.volume.hwd[1] = culm.volume.hwd[0] * culm.WIDTH_TO_HEIGHT_RATIO
+	culm.volume.hwd[2] = culm.volume.hwd[1] // depth same as width (circular)
 }

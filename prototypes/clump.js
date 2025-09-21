@@ -53,13 +53,13 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 		// Use polar coordinates for natural circular distribution
 		const angle = Math.random() * 2 * Math.PI
 		const distance = Math.random() * clumpRadius * 0.8 // Keep within 80% of radius
-		culm.xyz = [
-			clump.xyz[0] + Math.cos(angle) * distance,
+		culm.volume.xyz = [
+			clump.volume.xyz[0] + Math.cos(angle) * distance,
 			0,
-			clump.xyz[2] + Math.sin(angle) * distance
+			clump.volume.xyz[2] + Math.sin(angle) * distance
 		]
 		
-		culm.hwd = [0, 0, 0] // height, width, depth - will grow over time
+		culm.volume.hwd = [0, 0, 0] // height, width, depth - will grow over time
 		culm.age = 0 // age in days
 		counter++
 		clump.children.push(culm)
@@ -94,7 +94,7 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 		
 		// Reset harvested culm to newborn state
 		culm.age = 0
-		culm.hwd = [0, 0, 0]
+		culm.volume.hwd = [0, 0, 0]
 		culm.createdat = performance.now()
 	}
 	

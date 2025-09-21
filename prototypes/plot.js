@@ -31,7 +31,7 @@ prototypical_plot.onreset = function({width,depth}) {
 	const plot = this
 	plot.children = []
 	plot.createdat = plot.updatedat = performance.now()
-	plot.hwd = [width,0,depth]
+	plot.volume.hwd = [width,0,depth]
 	
 	// Initialize accumulated statistics
 	plot.cumulativeHarvest = 0
@@ -63,7 +63,7 @@ prototypical_plot.onreset = function({width,depth}) {
 			const clump = deepClone(ref)
 			clump.parent = plot.id
 			clump.id = plot.id + "/" + counter
-			clump.xyz = [x, 0, z]
+			clump.volume.xyz = [x, 0, z]
 			clump.onreset()
 			plot.children.push(clump)
 			
@@ -89,7 +89,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 	plot.children.forEach(clump => {
 		clump.children.forEach(culm => {
 			culm.ontick(daysElapsed)
-			totalHeight += culm.hwd[0]
+			totalHeight += culm.volume.hwd[0]
 			culmCount++
 		})
 	})

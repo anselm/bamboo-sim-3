@@ -149,9 +149,6 @@ export class BambooSimApp {
         for (let i = 0; i < days; i++) {
             sys({step: 1});
             this.currentDay++;
-            
-            // Update plot statistics
-            this.plot.onstep(1);
         }
         
         this.updateAllEntities();

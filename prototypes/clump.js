@@ -55,19 +55,10 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 		totalValue += culm.USD_PER_CULM
 		totalCO2 += culm.CO2_KG_PER_CULM
 		
-		// Remove harvested culm
-		const index = clump.children.indexOf(culm)
-		clump.children.splice(index, 1)
-		
-		// Add new culm to replace harvested one
-		const newCulm = deepClone(prototypical_dendrocalamus_asper_culm)
-		newCulm.parent = clump.id
-		newCulm.id = clump.id + "/" + Date.now() + Math.random()
-		newCulm.createdat = performance.now()
-		newCulm.xyz = [clump.xyz[0], 0, clump.xyz[2]]
-		newCulm.hwd = [0, 0, 0]
-		newCulm.age = 0
-		clump.children.push(newCulm)
+		// Reset harvested culm to newborn state
+		culm.age = 0
+		culm.hwd = [0, 0, 0]
+		culm.createdat = performance.now()
 	}
 	
 	return { count: harvestCount, value: totalValue, co2: totalCO2 }

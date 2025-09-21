@@ -79,21 +79,21 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 	return simulationStats
 }
 
-function create_test_plot() {
-	const plot = deepClone(prototypical_plot)
-	plot.id = 1
-	plot.onreset({width:100,depth:100})
-	return plot
-}
+// Run a simulation exercise
 
-// Run the simulation
 function main() {
+
+	// starting
 	console.log("=== Bamboo Simulation Starting ===")
 	console.log("Creating bamboo plot (100m x 100m)...")
 	const startTime = performance.now()
-	
-	const plot = create_test_plot()
-	
+
+	// create a test plot
+	const plot = deepClone(prototypical_plot)
+	plot.id = 1
+	plot.onreset({width:100,depth:100})
+
+	// log a few details
 	const clumpCount = plot.children.length
 	const totalCulms = clumpCount * prototypical_dendrocalamus_asper_clump.CULM_MAX
 	
@@ -105,9 +105,11 @@ function main() {
 	console.log("\nRunning 10-year simulation...")
 	console.log("(30-day time steps, logging annually)")
 	
+	// run simulation
 	const simStartTime = performance.now()
 	const stats = runSimulation(plot, 10, 30)
-	
+
+	// log final stats
 	console.log(`\nSimulation completed in ${((performance.now() - simStartTime) / 1000).toFixed(2)} seconds`)
 	console.log("\nFinal statistics:")
 	console.log(`  Total culms harvested: ${stats.totalHarvest[stats.totalHarvest.length - 1]}`)

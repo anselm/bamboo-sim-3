@@ -67,8 +67,8 @@ prototypical_plot.onreset = function() {
 	let counter = 1
 	
 	// Ensure minimum spacing accounts for clump width
-	const minSpacing = Math.max(ref.CLUMP_GAP_PER_AXIS, ref.CLUMP_MAX_WIDTH)
-	console.log(`Creating clumps with ${minSpacing}m spacing (clump width: ${ref.CLUMP_MAX_WIDTH}m)...`)
+	const minSpacing = Math.max(ref.clump.CLUMP_GAP_PER_AXIS, ref.clump.CLUMP_MAX_WIDTH)
+	console.log(`Creating clumps with ${minSpacing}m spacing (clump width: ${ref.clump.CLUMP_MAX_WIDTH}m)...`)
 	
 	// Start with offset to center clumps in plot
 	const startOffset = minSpacing / 2
@@ -154,13 +154,13 @@ prototypical_plot.onstep = function(daysElapsed) {
 	
 	plot.children.forEach(entity => {
 		if (entity.metadata.title === 'Bamboo Clump') {
-			const beforeHarvest = entity.totalHarvested
-			const beforeCost = entity.totalCostJoules
+			const beforeHarvest = entity.clump.totalHarvested
+			const beforeCost = entity.clump.totalCostJoules
 			
 			entity.onharvest()
 			
-			stepBambooHarvest += entity.totalHarvested - beforeHarvest
-			stepCostJoules += entity.totalCostJoules - beforeCost
+			stepBambooHarvest += entity.clump.totalHarvested - beforeHarvest
+			stepCostJoules += entity.clump.totalCostJoules - beforeCost
 		} else if (entity.metadata.title === 'Coffee Row') {
 			const beforeHarvest = entity.totalHarvested
 			const beforeCost = entity.totalCostJoules
@@ -180,11 +180,15 @@ prototypical_plot.onstep = function(daysElapsed) {
 	
 	plot.children.forEach(entity => {
 		if (entity.metadata.title === 'Bamboo Clump') {
-			plot.stats.cumulativeHarvest += entity.totalHarvested
+			plot.stats.cumulativeHarvest += entity.clump.totalHarvested
+			plot.stats.cumulativeValue += entity.clump.totalValue
+			plot.stats.cumulativeCO2 += entity.clump.totalCO2
+			plot.stats.cumulativeCostJoules += entity.clump.totalCostJoules
+		} else if (entity.metadata.title === 'Coffee Row') {
+			plot.stats.cumulativeValue += entity.totalValue
+			plot.stats.cumulativeCO2 += entity.totalCO2
+			plot.stats.cumulativeCostJoules += entity.totalCostJoules
 		}
-		plot.stats.cumulativeValue += entity.totalValue
-		plot.stats.cumulativeCO2 += entity.totalCO2
-		plot.stats.cumulativeCostJoules += entity.totalCostJoules
 	})
 	
 	// Record statistics

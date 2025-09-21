@@ -12,19 +12,21 @@ export const prototypical_dendrocalamus_asper_clump = {
 		unsplashImage: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50'
 	},
 
-	CULM_MAX: 40,
-	CLUMP_PER_HECTARE: 150,
-	CLUMP_GAP_PER_AXIS: 8,
-	CLUMP_MAX_WIDTH: 12,  // Maximum width of a clump in meters
-	HARVEST_FIRST_DAY: 1825,
-	HARVEST_PERCENT: 20.0,
-	JOULES_PER_CLUMP_PLANTING: 36000000, // 10 kWh = 36 MJ (energy to plant a clump)
-	
-	// Accumulated statistics
-	totalHarvested: 0,
-	totalValue: 0,
-	totalCO2: 0,
-	totalCostJoules: 0
+	clump: {
+		CULM_MAX: 40,
+		CLUMP_PER_HECTARE: 150,
+		CLUMP_GAP_PER_AXIS: 8,
+		CLUMP_MAX_WIDTH: 12,  // Maximum width of a clump in meters
+		HARVEST_FIRST_DAY: 1825,
+		HARVEST_PERCENT: 20.0,
+		JOULES_PER_CLUMP_PLANTING: 36000000, // 10 kWh = 36 MJ (energy to plant a clump)
+		
+		// Accumulated statistics
+		totalHarvested: 0,
+		totalValue: 0,
+		totalCO2: 0,
+		totalCostJoules: 0
+	}
 }
 
 prototypical_dendrocalamus_asper_clump.onreset = function() {
@@ -33,17 +35,17 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 	clump.createdat = this.updatedat = performance.now()
 	
 	// Initialize statistics
-	clump.totalHarvested = 0
-	clump.totalValue = 0
-	clump.totalCO2 = 0
-	clump.totalCostJoules = clump.JOULES_PER_CLUMP_PLANTING // Initial planting cost
+	clump.clump.totalHarvested = 0
+	clump.clump.totalValue = 0
+	clump.clump.totalCO2 = 0
+	clump.clump.totalCostJoules = clump.clump.JOULES_PER_CLUMP_PLANTING // Initial planting cost
 	
-	const max = this.CULM_MAX
+	const max = this.clump.CULM_MAX
 	let counter = 1
 	
 	// Distribute culms within the clump area (up to 12m diameter)
 	// Using a circular distribution pattern
-	const clumpRadius = this.CLUMP_MAX_WIDTH / 2
+	const clumpRadius = this.clump.CLUMP_MAX_WIDTH / 2
 	
 	for(let i = 0; i < max; i++) {
 		const culm = deepClone(prototypical_dendrocalamus_asper_culm)
@@ -70,12 +72,12 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 
 // Harvesting system
 prototypical_dendrocalamus_asper_clump.onharvest = function() {
-	const clump = this
-	const harvestableAge = this.HARVEST_FIRST_DAY
-	const harvestPercent = this.HARVEST_PERCENT / 100
+	const self = this
+	const harvestableAge = this.clump.HARVEST_FIRST_DAY
+	const harvestPercent = this.clump.HARVEST_PERCENT / 100
 	
 	// Find mature culms
-	const matureCulms = clump.children.filter(culm => culm.culm.age >= harvestableAge)
+	const matureCulms = self.children.filter(culm => culm.culm.age >= harvestableAge)
 	const harvestCount = Math.floor(matureCulms.length * harvestPercent)
 	
 	if (harvestCount === 0) return { count: 0, value: 0, co2: 0 }
@@ -92,7 +94,7 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 		totalCO2 += harvestedCulm.culm.CO2_KG_PER_CULM
 		
 		// Add harvesting energy cost
-		clump.totalCostJoules += harvestedCulm.culm.JOULES_PER_HARVEST
+		self.clump.totalCostJoules += harvestedCulm.culm.JOULES_PER_HARVEST
 		
 		// Reset harvested culm to newborn state
 		harvestedCulm.culm.age = 0
@@ -101,9 +103,9 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 	}
 	
 	// Accumulate in clump
-	clump.totalHarvested += harvestCount
-	clump.totalValue += totalValue
-	clump.totalCO2 += totalCO2
+	self.clump.totalHarvested += harvestCount
+	self.clump.totalValue += totalValue
+	self.clump.totalCO2 += totalCO2
 	
 	return { count: harvestCount, value: totalValue, co2: totalCO2 }
 }

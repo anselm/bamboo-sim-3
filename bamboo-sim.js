@@ -75,7 +75,7 @@ function main() {
 	// log a few details
 	const clumpCount = plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length
 	const coffeeRowCount = plot.children.filter(c => c.metadata.title === 'Coffee Row').length
-	const totalCulms = clumpCount * prototypical_dendrocalamus_asper_clump.CULM_MAX
+	const totalCulms = clumpCount * prototypical_dendrocalamus_asper_clump.clump.CULM_MAX
 	const totalCoffeePlants = coffeeRowCount * (plot.children.find(c => c.metadata.title === 'Coffee Row')?.PLANTS_PER_ROW || 0)
 	
 	console.log(`\nPlot initialized in ${((performance.now() - startTime) / 1000).toFixed(2)} seconds`)

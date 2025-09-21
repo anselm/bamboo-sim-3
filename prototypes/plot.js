@@ -40,6 +40,16 @@ export const prototypical_plot = {
 		economicYield: [],
 		co2Sequestered: [],
 		energyCostJoules: []
+	},
+	
+	// Rendering information
+	volume: {
+		xyz: [ 0,0,0 ],
+		hwd: [ 100,0.1,100 ],  // Flat plane
+		ypr: [ 0,0,0 ],
+		shape: 'box',
+		color: 0x654321,  // Dark brown (soil)
+		opacity: 1.0
 	}
 }
 

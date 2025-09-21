@@ -36,11 +36,23 @@ npm run start
 
 ## Usage
 
+### Command Line Version
 ```bash
 node bamboo-sim.js
 ```
 
-The simulation creates a 100m x 100m plot and runs for 20 years with daily time steps, logging statistics annually.
+### Web 3D Version
+```bash
+# Serve the files with a local web server (required for ES6 modules)
+python3 -m http.server 8000
+# or
+npx http-server -p 8000
+
+# Then open in browser
+open http://localhost:8000
+```
+
+The simulation creates a 100m x 100m plot. The CLI version runs for 20 years with daily time steps, logging statistics annually. The web version provides interactive 3D visualization with play/pause controls.
 
 ## Architecture
 

@@ -9,6 +9,7 @@
 ///
 
 const entities = []
+const observers = []
 
 export function sys(blob) {
 
@@ -23,6 +24,13 @@ export function sys(blob) {
 		return
 	}
 
+	// Call all observers with the blob
+	observers.forEach(observer => {
+		if(observer.onentity) {
+			observer.onentity(blob)
+		}
+	})
+
 	// onreset -> if your object has an onreset() method then call it now
 	if(blob.onreset) {
 		console.log("sys: resetting ",blob.id)
@@ -32,6 +40,11 @@ export function sys(blob) {
 	// Register entity if it has onstep method
 	if(blob.onstep) {
 		entities.push(blob)
+	}
+
+	// Register observer if it has onentity method
+	if(blob.onentity) {
+		observers.push(blob)
 	}
 
 }

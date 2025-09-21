@@ -38,6 +38,16 @@ export const prototypical_coffee_plant = {
 		totalHarvested: 0,
 		totalValue: 0,
 		totalCO2: 0
+	},
+	
+	// Rendering information
+	volume: {
+		xyz: [ 0,0,0 ],
+		hwd: [ 0,0,0 ],
+		ypr: [ 0,0,0 ],
+		shape: 'sphere',
+		color: 0x8B4513,  // Saddle brown
+		opacity: 1.0
 	}
 }
 

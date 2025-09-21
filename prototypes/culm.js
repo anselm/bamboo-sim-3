@@ -23,6 +23,16 @@ export const prototypical_dendrocalamus_asper_culm = {
 		GROWTH_RATE: 0.02,           // Controls steepness of S-curve (reaches ~95% height by 2 years)
 		GROWTH_MIDPOINT_DAYS: 180,   // Days when growth is fastest (6 months)
 		WIDTH_TO_HEIGHT_RATIO: 0.005 // Roughly 15cm diameter at full height
+	},
+	
+	// Rendering information
+	volume: {
+		xyz: [ 0,0,0 ],
+		hwd: [ 0,0,0 ],
+		ypr: [ 0,0,0 ],
+		shape: 'cylinder',
+		color: 0x228B22,  // Forest green
+		opacity: 1.0
 	}
 }
 

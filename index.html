@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bamboo Simulation 3D</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 100;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        #stats {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>Bamboo Simulation 3D</h3>
+        <p>Use mouse to orbit, scroll to zoom</p>
+    </div>
+    
+    <div id="controls">
+        <button id="startBtn">Start Simulation</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="stepBtn">Step (1 day)</button>
+        <button id="yearBtn">Step (1 year)</button>
+    </div>
+    
+    <div id="stats">
+        <div id="day">Day: 0</div>
+        <div id="year">Year: 0</div>
+        <div id="bambooHeight">Avg Bamboo Height: 0m</div>
+        <div id="coffeeHeight">Avg Coffee Height: 0m</div>
+        <div id="harvested">Bamboo Harvested: 0</div>
+        <div id="value">Economic Value: $0</div>
+    </div>
+
+    <script type="module">
+        import { deepClone } from './utils/deepClone.js';
+        import { sys } from './utils/sys.js';
+        import { prototypical_plot } from './prototypes/plot.js';
+        import { volume_service } from './services/volume.js';
+        
+        let plot = null;
+        let isRunning = false;
+        let currentDay = 0;
+        let animationId = null;
+        
+        // Initialize volume service
+        sys(volume_service);
+        
+        // Create and initialize plot
+        function initializePlot() {
+            plot = deepClone(prototypical_plot);
+            plot.id = 1;
+            plot.field.width = 100;
+            plot.field.depth = 100;
+            plot.field.ENABLE_INTERCROPPING = true;
+            
+            // Register plot with sys
+            sys(plot);
+            
+            // Send all entities through sys so volume service can see them
+            updateAllEntities();
+        }
+        
+        // Send all entities through sys for volume service
+        function updateAllEntities() {
+            // Update plot
+            sys(plot);
+            
+            // Update all children
+            plot.children.forEach(entity => {
+                sys(entity);
+                
+                // Update grandchildren (culms, coffee plants)
+                if (entity.children) {
+                    entity.children.forEach(child => sys(child));
+                }
+            });
+        }
+        
+        // Update statistics display
+        function updateStats() {
+            let totalBambooHeight = 0;
+            let culmCount = 0;
+            let totalCoffeeHeight = 0;
+            let coffeePlantCount = 0;
+            
+            plot.children.forEach(entity => {
+                if (entity.clump) {
+                    entity.children.forEach(culm => {
+                        totalBambooHeight += culm.volume.hwd[0];
+                        culmCount++;
+                    });
+                } else if (entity.coffeerow) {
+                    entity.children.forEach(plant => {
+                        totalCoffeeHeight += plant.volume.hwd[0];
+                        coffeePlantCount++;
+                    });
+                }
+            });
+            
+            const avgBambooHeight = culmCount > 0 ? totalBambooHeight / culmCount : 0;
+            const avgCoffeeHeight = coffeePlantCount > 0 ? totalCoffeeHeight / coffeePlantCount : 0;
+            
+            document.getElementById('day').textContent = `Day: ${currentDay}`;
+            document.getElementById('year').textContent = `Year: ${Math.floor(currentDay / 365)}`;
+            document.getElementById('bambooHeight').textContent = `Avg Bamboo Height: ${avgBambooHeight.toFixed(2)}m`;
+            document.getElementById('coffeeHeight').textContent = `Avg Coffee Height: ${avgCoffeeHeight.toFixed(2)}m`;
+            document.getElementById('harvested').textContent = `Bamboo Harvested: ${Math.round(plot.stats.cumulativeHarvest)}`;
+            document.getElementById('value').textContent = `Economic Value: $${plot.stats.cumulativeValue.toFixed(2)}`;
+        }
+        
+        // Simulation step
+        function simulationStep(days = 1) {
+            for (let i = 0; i < days; i++) {
+                sys({step: 1});
+                currentDay++;
+                
+                // Update plot statistics
+                plot.onstep(1);
+            }
+            
+            updateAllEntities();
+            updateStats();
+        }
+        
+        // Animation loop
+        function animate() {
+            if (isRunning) {
+                simulationStep(1);
+                animationId = setTimeout(animate, 100); // 10 steps per second
+            }
+        }
+        
+        // Button handlers
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!plot) {
+                initializePlot();
+                updateStats();
+            }
+            isRunning = true;
+            animate();
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isRunning = false;
+            if (animationId) {
+                clearTimeout(animationId);
+            }
+        });
+        
+        document.getElementById('stepBtn').addEventListener('click', () => {
+            if (!plot) {
+                initializePlot();
+            }
+            simulationStep(1);
+        });
+        
+        document.getElementById('yearBtn').addEventListener('click', () => {
+            if (!plot) {
+                initializePlot();
+            }
+            simulationStep(365);
+        });
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            console.log("Bamboo Simulation 3D loaded");
+        });
+    </script>
+</body>
+</html>

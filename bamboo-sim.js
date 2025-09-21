@@ -47,7 +47,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 					}
 				})
 				
-				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
+				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
 				
 				nextYearMark += 365
 			}

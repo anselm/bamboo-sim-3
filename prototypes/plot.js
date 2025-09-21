@@ -173,11 +173,13 @@ prototypical_plot.onstep = function(daysElapsed) {
 	plot.cumulativeCO2 = 0
 	plot.cumulativeCostJoules = 0
 	
-	plot.children.forEach(clump => {
-		plot.cumulativeHarvest += clump.totalHarvested
-		plot.cumulativeValue += clump.totalValue
-		plot.cumulativeCO2 += clump.totalCO2
-		plot.cumulativeCostJoules += clump.totalCostJoules
+	plot.children.forEach(entity => {
+		if (entity.metadata.title === 'Bamboo Clump') {
+			plot.cumulativeHarvest += entity.totalHarvested
+		}
+		plot.cumulativeValue += entity.totalValue
+		plot.cumulativeCO2 += entity.totalCO2
+		plot.cumulativeCostJoules += entity.totalCostJoules
 	})
 	
 	// Record statistics

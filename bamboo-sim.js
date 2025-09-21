@@ -46,7 +46,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 					}
 				})
 				
-				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${yearlyBambooHarvest.toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
+				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
 				
 				nextYearMark += 365
 			}
@@ -98,7 +98,7 @@ function main() {
 	// log final stats
 	console.log(`\nSimulation completed in ${((performance.now() - simStartTime) / 1000).toFixed(2)} seconds`)
 	console.log("\nFinal statistics:")
-	console.log(`  Total culms harvested: ${plot.cumulativeHarvest}`)
+	console.log(`  Total culms harvested: ${Math.round(plot.cumulativeHarvest)}`)
 	
 	// Calculate coffee totals
 	let totalCoffeeKg = 0

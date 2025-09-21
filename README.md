@@ -40,4 +40,11 @@ npm run start
 node bamboo-sim.js
 ```
 
-The simulation creates a 100m x 100m plot and runs for 10 years, logging statistics annually.
+The simulation creates a 100m x 100m plot and runs for 20 years, logging statistics annually.
+
+## Architecture
+
+The simulation uses an event bus pattern via the `sys()` function which:
+- Automatically calls `onreset()` on entities that have it
+- Registers entities with `ontick()` methods for simulation updates
+- Provides a declarative way to initialize entities with their properties set first

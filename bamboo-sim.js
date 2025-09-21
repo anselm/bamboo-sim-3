@@ -1,4 +1,5 @@
 import { deepClone } from './utils/deepClone.js';
+import { sys } from './utils/sys.js';
 import { prototypical_plot } from './prototypes/plot.js';
 import { prototypical_dendrocalamus_asper_clump } from './prototypes/clump.js';
 
@@ -72,8 +73,12 @@ function main() {
 	// create a test plot
 	const plot = deepClone(prototypical_plot)
 	plot.id = 1
+	plot.width = 100  // Set plot dimensions
+	plot.depth = 100
 	plot.ENABLE_INTERCROPPING = true  // Enable coffee intercropping
-	plot.onreset({width:100,depth:100})
+	
+	// Use sys() to initialize the plot
+	sys(plot)
 
 	// log a few details
 	const clumpCount = plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length

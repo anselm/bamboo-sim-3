@@ -105,17 +105,27 @@ prototypical_plot.onreset = function({width,depth}) {
 	plot.hwd = [width,0,depth]
 	const ref = prototypical_dendrocalamus_asper_clump
 	let counter = 1
-	for(let x = 0; x != width;x+=ref.CLUMP_GAP_PER_AXIS) {
-		for(let z=0; z != depth;z+=ref.CLUMP_GAP_PER_AXIS) {
+	
+	console.log(`Creating clumps with ${ref.CLUMP_GAP_PER_AXIS}m spacing...`)
+	
+	for(let x = 0; x < width; x += ref.CLUMP_GAP_PER_AXIS) {
+		for(let z = 0; z < depth; z += ref.CLUMP_GAP_PER_AXIS) {
 			const clump = deepClone(ref)
 			clump.parent = plot.id
 			clump.id = plot.id + "/" + counter
 			clump.xyz = [x, 0, z]
 			clump.onreset()
 			plot.children.push(clump)
+			
+			if (counter % 50 === 0) {
+				console.log(`  Created ${counter} clumps...`)
+			}
+			
 			counter++
 		}
 	}
+	
+	console.log(`  Total clumps created: ${plot.children.length}`)
 }
 
 // Harvesting system
@@ -224,11 +234,12 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 		
 		// Log progress every year
 		if (currentDay % 365 === 0 && currentDay > 0) {
-			console.log(`Year ${currentDay / 365}:`)
+			console.log(`\nYear ${currentDay / 365}:`)
 			console.log(`  Average culm height: ${(totalHeight / culmCount).toFixed(2)}m`)
 			console.log(`  Total harvested: ${cumulativeHarvest} culms`)
 			console.log(`  Economic yield: $${cumulativeValue.toFixed(2)}`)
 			console.log(`  CO2 sequestered: ${cumulativeCO2.toFixed(2)}kg`)
+			console.log(`  Harvest this year: ${stepHarvest} culms`)
 		}
 	}
 	
@@ -244,22 +255,32 @@ function create_test_plot() {
 
 // Run the simulation
 function main() {
+	console.log("=== Bamboo Simulation Starting ===")
 	console.log("Creating bamboo plot (100m x 100m)...")
+	const startTime = performance.now()
+	
 	const plot = create_test_plot()
 	
 	const clumpCount = plot.children.length
 	const totalCulms = clumpCount * prototypical_dendrocalamus_asper_clump.CULM_MAX
 	
-	console.log(`Plot initialized with ${clumpCount} clumps and ${totalCulms} culms`)
-	console.log("\nRunning 10-year simulation...")
+	console.log(`\nPlot initialized in ${((performance.now() - startTime) / 1000).toFixed(2)} seconds`)
+	console.log(`  - ${clumpCount} clumps`)
+	console.log(`  - ${totalCulms} total culms`)
+	console.log(`  - Density: ${(clumpCount / (100 * 100 / 10000)).toFixed(2)} clumps per hectare`)
 	
+	console.log("\nRunning 10-year simulation...")
+	console.log("(30-day time steps, logging annually)")
+	
+	const simStartTime = performance.now()
 	const stats = runSimulation(plot, 10, 30)
 	
-	console.log("\nSimulation complete!")
-	console.log(`Final statistics:`)
+	console.log(`\nSimulation completed in ${((performance.now() - simStartTime) / 1000).toFixed(2)} seconds`)
+	console.log("\nFinal statistics:")
 	console.log(`  Total culms harvested: ${stats.totalHarvest[stats.totalHarvest.length - 1]}`)
 	console.log(`  Total economic yield: $${stats.economicYield[stats.economicYield.length - 1].toFixed(2)}`)
 	console.log(`  Total CO2 sequestered: ${stats.co2Sequestered[stats.co2Sequestered.length - 1].toFixed(2)}kg`)
+	console.log(`  Average yield per hectare: $${(stats.economicYield[stats.economicYield.length - 1] / (100 * 100 / 10000)).toFixed(2)}`)
 }
 
 // Run the simulation when the file is loaded

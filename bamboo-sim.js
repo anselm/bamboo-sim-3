@@ -73,11 +73,11 @@ function main() {
 	// create a test plot
 	const plot = deepClone(prototypical_plot)
 	plot.id = 1
-	plot.width = 100  // Set plot dimensions
-	plot.depth = 100
-	plot.ENABLE_INTERCROPPING = true  // Enable coffee intercropping
+	plot.field.width = 100  // Set plot dimensions
+	plot.field.depth = 100
+	plot.field.ENABLE_INTERCROPPING = true  // Enable coffee intercropping
 	
-	// Use sys() to initialize the plot
+	// Use sys() to register the plot; which will initialize it as well
 	sys(plot)
 
 	// log a few details
@@ -121,9 +121,9 @@ function main() {
 	console.log(`    - Coffee: $${totalCoffeeValue.toFixed(2)}`)
 	console.log(`  Total CO2 sequestered: ${plot.cumulativeCO2.toFixed(2)}kg`)
 	console.log(`  Total energy invested: ${(plot.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
-	console.log(`  Total cost invested: $${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(2)}`)
+	console.log(`  Total cost invested: $${(plot.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(2)}`)
 	console.log(`  Average yield per hectare: $${(plot.cumulativeValue / (100 * 100 / 10000)).toFixed(2)}`)
-	console.log(`  Net profit: $${(plot.cumulativeValue - (plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE)).toFixed(2)}`)
+	console.log(`  Net profit: $${(plot.cumulativeValue - (plot.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE)).toFixed(2)}`)
 }
 
 // Run the simulation when the file is loaded

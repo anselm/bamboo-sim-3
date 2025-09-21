@@ -14,16 +14,14 @@ export const prototypical_plot = {
 		unsplashImage: 'https://images.unsplash.com/photo-1518756131217-31eb79b20e8f'
 	},
 	
-	// Plot dimensions
-	width: 100,  // Default width in meters
-	depth: 100,  // Default depth in meters
-	
-	// Energy economics
-	USD_PER_MEGAJOULE: 0.0278, // Based on $0.10 per kWh (1 kWh = 3.6 MJ)
-	
-	// Intercropping settings
-	ENABLE_INTERCROPPING: false,
-	COFFEE_ROW_SPACING: 4,  // Place coffee rows every 4 meters
+	// Field configuration
+	field: {
+		width: 100,  // Default width in meters
+		depth: 100,  // Default depth in meters
+		USD_PER_MEGAJOULE: 0.0278, // Based on $0.10 per kWh (1 kWh = 3.6 MJ)
+		ENABLE_INTERCROPPING: false,
+		COFFEE_ROW_SPACING: 4,  // Place coffee rows every 4 meters
+	},
 	
 	// Accumulated statistics
 	cumulativeHarvest: 0,
@@ -46,7 +44,7 @@ prototypical_plot.onreset = function() {
 	const plot = this
 	plot.children = []
 	plot.createdat = plot.updatedat = performance.now()
-	plot.volume.hwd = [plot.width, 0, plot.depth]
+	plot.volume.hwd = [plot.field.width, 0, plot.field.depth]
 	
 	// Initialize accumulated statistics
 	plot.cumulativeHarvest = 0
@@ -73,8 +71,8 @@ prototypical_plot.onreset = function() {
 	// Start with offset to center clumps in plot
 	const startOffset = minSpacing / 2
 	
-	for(let x = startOffset; x < plot.width; x += minSpacing) {
-		for(let z = startOffset; z < plot.depth; z += minSpacing) {
+	for(let x = startOffset; x < plot.field.width; x += minSpacing) {
+		for(let z = startOffset; z < plot.field.depth; z += minSpacing) {
 			const clump = deepClone(ref)
 			clump.parent = plot.id
 			clump.id = plot.id + "/" + counter
@@ -91,17 +89,17 @@ prototypical_plot.onreset = function() {
 	}
 	
 	console.log(`  Total clumps created: ${plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length}`)
-	console.log(`  Actual density: ${(plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length / (plot.width * plot.depth / 10000)).toFixed(2)} clumps per hectare`)
+	console.log(`  Actual density: ${(plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length / (plot.field.width * plot.field.depth / 10000)).toFixed(2)} clumps per hectare`)
 	
 	// Add coffee rows if intercropping is enabled
-	if (plot.ENABLE_INTERCROPPING) {
+	if (plot.field.ENABLE_INTERCROPPING) {
 		console.log(`\nAdding coffee rows for intercropping...`)
 		let coffeeCounter = 1
 		
 		// Place coffee rows between bamboo clumps
-		for (let z = startOffset + plot.COFFEE_ROW_SPACING; z < plot.depth - plot.COFFEE_ROW_SPACING; z += minSpacing) {
+		for (let z = startOffset + plot.field.COFFEE_ROW_SPACING; z < plot.field.depth - plot.field.COFFEE_ROW_SPACING; z += minSpacing) {
 			// Skip rows that would be too close to bamboo
-			if ((z - startOffset) % minSpacing < plot.COFFEE_ROW_SPACING) continue
+			if ((z - startOffset) % minSpacing < plot.field.COFFEE_ROW_SPACING) continue
 			
 			const coffeeRow = deepClone(prototypical_coffee_row)
 			coffeeRow.parent = plot.id

@@ -1,0 +1,13 @@
+{
+  "name": "bamboo-simulation",
+  "version": "1.0.0",
+  "description": "Agent-based bamboo field simulation using ECS-like prototypes",
+  "type": "module",
+  "main": "bamboo-sim.js",
+  "scripts": {
+    "start": "node bamboo-sim.js"
+  },
+  "keywords": ["simulation", "bamboo", "ecs", "agent-based"],
+  "author": "",
+  "license": "MIT"
+}

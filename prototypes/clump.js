@@ -62,7 +62,7 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 		]
 		
 		culm.volume.hwd = [0, 0, 0] // height, width, depth - will grow over time
-		culm.age = 0 // age in days
+		culm.culm.age = 0 // age in days
 		counter++
 		clump.children.push(culm)
 	}
@@ -75,29 +75,29 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 	const harvestPercent = this.HARVEST_PERCENT / 100
 	
 	// Find mature culms
-	const matureCulms = clump.children.filter(culm => culm.age >= harvestableAge)
+	const matureCulms = clump.children.filter(culm => culm.culm.age >= harvestableAge)
 	const harvestCount = Math.floor(matureCulms.length * harvestPercent)
 	
 	if (harvestCount === 0) return { count: 0, value: 0, co2: 0 }
 	
 	// Sort by age and harvest oldest first
-	matureCulms.sort((a, b) => b.age - a.age)
+	matureCulms.sort((a, b) => b.culm.age - a.culm.age)
 	
 	let totalValue = 0
 	let totalCO2 = 0
 	
 	for (let i = 0; i < harvestCount; i++) {
-		const culm = matureCulms[i]
-		totalValue += culm.USD_PER_CULM
-		totalCO2 += culm.CO2_KG_PER_CULM
+		const harvestedCulm = matureCulms[i]
+		totalValue += harvestedCulm.culm.USD_PER_CULM
+		totalCO2 += harvestedCulm.culm.CO2_KG_PER_CULM
 		
 		// Add harvesting energy cost
-		clump.totalCostJoules += culm.JOULES_PER_HARVEST
+		clump.totalCostJoules += harvestedCulm.culm.JOULES_PER_HARVEST
 		
 		// Reset harvested culm to newborn state
-		culm.age = 0
-		culm.volume.hwd = [0, 0, 0]
-		culm.createdat = performance.now()
+		harvestedCulm.culm.age = 0
+		harvestedCulm.volume.hwd = [0, 0, 0]
+		harvestedCulm.createdat = performance.now()
 	}
 	
 	// Accumulate in clump

@@ -35,7 +35,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 				let coffeeKg = 0
 				plot.children.forEach(entity => {
 					if (entity.metadata.title === 'Coffee Row') {
-						coffeeKg += entity.totalHarvested
+						coffeeKg += entity.coffeerow.totalHarvested
 					}
 				})
 				
@@ -76,7 +76,7 @@ function main() {
 	const clumpCount = plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length
 	const coffeeRowCount = plot.children.filter(c => c.metadata.title === 'Coffee Row').length
 	const totalCulms = clumpCount * prototypical_dendrocalamus_asper_clump.clump.CULM_MAX
-	const totalCoffeePlants = coffeeRowCount * (plot.children.find(c => c.metadata.title === 'Coffee Row')?.PLANTS_PER_ROW || 0)
+	const totalCoffeePlants = coffeeRowCount * (plot.children.find(c => c.metadata.title === 'Coffee Row')?.coffeerow.PLANTS_PER_ROW || 0)
 	
 	console.log(`\nPlot initialized in ${((performance.now() - startTime) / 1000).toFixed(2)} seconds`)
 	console.log(`  - ${clumpCount} bamboo clumps`)
@@ -102,8 +102,8 @@ function main() {
 	let totalCoffeeValue = 0
 	plot.children.forEach(entity => {
 		if (entity.metadata.title === 'Coffee Row') {
-			totalCoffeeKg += entity.totalHarvested
-			totalCoffeeValue += entity.totalValue
+			totalCoffeeKg += entity.coffeerow.totalHarvested
+			totalCoffeeValue += entity.coffeerow.totalValue
 		}
 	})
 	

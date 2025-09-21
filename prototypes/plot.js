@@ -113,7 +113,7 @@ prototypical_plot.onreset = function() {
 		}
 		
 		console.log(`  Total coffee rows created: ${coffeeCounter - 1}`)
-		console.log(`  Total coffee plants: ${(coffeeCounter - 1) * prototypical_coffee_row.PLANTS_PER_ROW}`)
+		console.log(`  Total coffee plants: ${(coffeeCounter - 1) * prototypical_coffee_row.coffeerow.PLANTS_PER_ROW}`)
 	}
 }
 
@@ -162,13 +162,13 @@ prototypical_plot.onstep = function(daysElapsed) {
 			stepBambooHarvest += entity.clump.totalHarvested - beforeHarvest
 			stepCostJoules += entity.clump.totalCostJoules - beforeCost
 		} else if (entity.metadata.title === 'Coffee Row') {
-			const beforeHarvest = entity.totalHarvested
-			const beforeCost = entity.totalCostJoules
+			const beforeHarvest = entity.coffeerow.totalHarvested
+			const beforeCost = entity.coffeerow.totalCostJoules
 			
 			entity.onharvest(dayOfYear)
 			
-			stepCoffeeHarvest += entity.totalHarvested - beforeHarvest
-			stepCostJoules += entity.totalCostJoules - beforeCost
+			stepCoffeeHarvest += entity.coffeerow.totalHarvested - beforeHarvest
+			stepCostJoules += entity.coffeerow.totalCostJoules - beforeCost
 		}
 	})
 	
@@ -185,9 +185,9 @@ prototypical_plot.onstep = function(daysElapsed) {
 			plot.stats.cumulativeCO2 += entity.clump.totalCO2
 			plot.stats.cumulativeCostJoules += entity.clump.totalCostJoules
 		} else if (entity.metadata.title === 'Coffee Row') {
-			plot.stats.cumulativeValue += entity.totalValue
-			plot.stats.cumulativeCO2 += entity.totalCO2
-			plot.stats.cumulativeCostJoules += entity.totalCostJoules
+			plot.stats.cumulativeValue += entity.coffeerow.totalValue
+			plot.stats.cumulativeCO2 += entity.coffeerow.totalCO2
+			plot.stats.cumulativeCostJoules += entity.coffeerow.totalCostJoules
 		}
 	})
 	

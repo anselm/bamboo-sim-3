@@ -45,10 +45,10 @@ export const prototypical_plot = {
 	// Rendering information
 	volume: {
 		xyz: [ 0,0,0 ],
-		hwd: [ 100,0.1,100 ],  // Flat plane
+		hwd: [ 0.1,100,100 ],  // height, width, depth - very flat box
 		ypr: [ 0,0,0 ],
 		shape: 'box',
-		color: 0x654321,  // Dark brown (soil)
+		color: 0x8B7355,  // Saddle brown (soil)
 		opacity: 1.0
 	}
 }
@@ -57,7 +57,7 @@ prototypical_plot.onreset = function() {
 	const plot = this
 	plot.children = []
 	plot.createdat = plot.updatedat = performance.now()
-	plot.volume.hwd = [plot.field.width, 0, plot.field.depth]
+	plot.volume.hwd = [0.1, plot.field.width, plot.field.depth]
 	
 	// Reset all statistics
 	plot.stats = {

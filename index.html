@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bamboo Simulation 3D</title>
+    <title>Bamboo Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
     {
         "imports": {
@@ -12,215 +13,115 @@
         }
     }
     </script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-        }
-        
-        #controls {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            z-index: 100;
-        }
-        
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        
-        button:hover {
-            background: #45a049;
-        }
-        
-        #stats {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: white;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-            font-size: 14px;
-        }
-    </style>
+    <link rel="stylesheet" href="ui/styles.css">
 </head>
-<body>
-    <div id="info">
-        <h3>Bamboo Simulation 3D</h3>
-        <p>Use mouse to orbit, scroll to zoom</p>
-    </div>
-    
-    <div id="controls">
-        <button id="startBtn">Start Simulation</button>
-        <button id="pauseBtn">Pause</button>
-        <button id="stepBtn">Step (1 day)</button>
-        <button id="yearBtn">Step (1 year)</button>
-    </div>
-    
-    <div id="stats">
-        <div id="day">Day: 0</div>
-        <div id="year">Year: 0</div>
-        <div id="bambooHeight">Avg Bamboo Height: 0m</div>
-        <div id="coffeeHeight">Avg Coffee Height: 0m</div>
-        <div id="harvested">Bamboo Harvested: 0</div>
-        <div id="value">Economic Value: $0</div>
+<body class="bg-gray-900 text-white">
+    <div class="flex flex-col h-screen">
+        <!-- Header -->
+        <header class="bg-gray-800 border-b border-gray-700 p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Bamboo Simulation</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-400">Day: <span id="day" class="text-white">0</span></span>
+                    <span class="text-sm text-gray-400">Year: <span id="year" class="text-white">0</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-gray-800 border-r border-gray-700 p-4">
+                <div class="space-y-6">
+                    <!-- Controls -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Controls</h3>
+                        <div class="space-y-2">
+                            <button id="startBtn" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded transition">
+                                Start
+                            </button>
+                            <button id="pauseBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded transition">
+                                Pause
+                            </button>
+                            <button id="stepBtn" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition">
+                                Step (1 day)
+                            </button>
+                            <button id="yearBtn" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition">
+                                Step (1 year)
+                            </button>
+                            <button id="resetBtn" class="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Speed Control -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Speed</h3>
+                        <div class="flex items-center space-x-2">
+                            <input id="speedControl" type="range" min="1" max="10" value="1" class="flex-1">
+                            <span id="speedValue" class="text-sm w-8">1x</span>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Statistics</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Bamboo Height:</span>
+                                <span id="bambooHeight">0m</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Coffee Height:</span>
+                                <span id="coffeeHeight">0m</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Harvested:</span>
+                                <span id="harvested">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Value:</span>
+                                <span id="value">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main View -->
+            <main class="flex-1 flex flex-col">
+                <!-- Tabs -->
+                <div class="bg-gray-800 border-b border-gray-700">
+                    <div class="flex">
+                        <button data-tab="3d" class="px-6 py-3 hover:bg-gray-700 transition border-b-2 border-transparent">
+                            3D View
+                        </button>
+                        <button data-tab="stats" class="px-6 py-3 hover:bg-gray-700 transition border-b-2 border-transparent">
+                            Statistics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-1 relative">
+                    <div data-content="3d" class="absolute inset-0">
+                        <div id="threejs-container" class="w-full h-full"></div>
+                    </div>
+                    <div data-content="stats" class="absolute inset-0 hidden p-4">
+                        <canvas id="statsCanvas" class="w-full h-full bg-gray-900 rounded"></canvas>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script type="module">
-        import { deepClone } from './utils/deepClone.js';
-        import { sys } from './utils/sys.js';
-        import { prototypical_plot } from './prototypes/plot.js';
-        import { volume_service } from './services/volume.js';
+        import { BambooSimApp } from './ui/app.js';
         
-        let plot = null;
-        let isRunning = false;
-        let currentDay = 0;
-        let animationId = null;
-        
-        // Initialize volume service
-        sys(volume_service);
-        
-        // Create and initialize plot
-        function initializePlot() {
-            plot = deepClone(prototypical_plot);
-            plot.id = 1;
-            plot.field.width = 100;
-            plot.field.depth = 100;
-            plot.field.ENABLE_INTERCROPPING = true;
-            
-            // Register plot with sys
-            sys(plot);
-            
-            // Send all entities through sys so volume service can see them
-            updateAllEntities();
-        }
-        
-        // Send all entities through sys for volume service
-        function updateAllEntities() {
-            // Update plot
-            sys(plot);
-            
-            // Update all children
-            plot.children.forEach(entity => {
-                sys(entity);
-                
-                // Update grandchildren (culms, coffee plants)
-                if (entity.children) {
-                    entity.children.forEach(child => sys(child));
-                }
-            });
-        }
-        
-        // Update statistics display
-        function updateStats() {
-            let totalBambooHeight = 0;
-            let culmCount = 0;
-            let totalCoffeeHeight = 0;
-            let coffeePlantCount = 0;
-            
-            plot.children.forEach(entity => {
-                if (entity.clump) {
-                    entity.children.forEach(culm => {
-                        totalBambooHeight += culm.volume.hwd[0];
-                        culmCount++;
-                    });
-                } else if (entity.coffeerow) {
-                    entity.children.forEach(plant => {
-                        totalCoffeeHeight += plant.volume.hwd[0];
-                        coffeePlantCount++;
-                    });
-                }
-            });
-            
-            const avgBambooHeight = culmCount > 0 ? totalBambooHeight / culmCount : 0;
-            const avgCoffeeHeight = coffeePlantCount > 0 ? totalCoffeeHeight / coffeePlantCount : 0;
-            
-            document.getElementById('day').textContent = `Day: ${currentDay}`;
-            document.getElementById('year').textContent = `Year: ${Math.floor(currentDay / 365)}`;
-            document.getElementById('bambooHeight').textContent = `Avg Bamboo Height: ${avgBambooHeight.toFixed(2)}m`;
-            document.getElementById('coffeeHeight').textContent = `Avg Coffee Height: ${avgCoffeeHeight.toFixed(2)}m`;
-            document.getElementById('harvested').textContent = `Bamboo Harvested: ${Math.round(plot.stats.cumulativeHarvest)}`;
-            document.getElementById('value').textContent = `Economic Value: $${plot.stats.cumulativeValue.toFixed(2)}`;
-        }
-        
-        // Simulation step
-        function simulationStep(days = 1) {
-            for (let i = 0; i < days; i++) {
-                sys({step: 1});
-                currentDay++;
-                
-                // Update plot statistics
-                plot.onstep(1);
-            }
-            
-            updateAllEntities();
-            updateStats();
-        }
-        
-        // Animation loop
-        function animate() {
-            if (isRunning) {
-                simulationStep(1);
-                animationId = setTimeout(animate, 100); // 10 steps per second
-            }
-        }
-        
-        // Button handlers
-        document.getElementById('startBtn').addEventListener('click', () => {
-            if (!plot) {
-                initializePlot();
-                updateStats();
-            }
-            isRunning = true;
-            animate();
-        });
-        
-        document.getElementById('pauseBtn').addEventListener('click', () => {
-            isRunning = false;
-            if (animationId) {
-                clearTimeout(animationId);
-            }
-        });
-        
-        document.getElementById('stepBtn').addEventListener('click', () => {
-            if (!plot) {
-                initializePlot();
-            }
-            simulationStep(1);
-        });
-        
-        document.getElementById('yearBtn').addEventListener('click', () => {
-            if (!plot) {
-                initializePlot();
-            }
-            simulationStep(365);
-        });
-        
-        // Initialize on load
         window.addEventListener('load', () => {
-            console.log("Bamboo Simulation 3D loaded");
+            const app = new BambooSimApp();
+            console.log("Bamboo Simulation loaded");
         });
     </script>
 </body>

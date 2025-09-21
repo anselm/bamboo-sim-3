@@ -31,9 +31,19 @@ export const volume_service = {
 		
 		// Create renderer
 		this.renderer = new THREE.WebGLRenderer({ antialias: true });
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMap.enabled = true;
-		document.body.appendChild(this.renderer.domElement);
+		
+		// Get container
+		const container = document.getElementById('threejs-container');
+		if (container) {
+			const rect = container.getBoundingClientRect();
+			this.renderer.setSize(rect.width, rect.height);
+			container.appendChild(this.renderer.domElement);
+		} else {
+			// Fallback to body
+			this.renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(this.renderer.domElement);
+		}
 		
 		// Add controls
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -55,9 +65,17 @@ export const volume_service = {
 		
 		// Handle window resize
 		window.addEventListener('resize', () => {
-			this.camera.aspect = window.innerWidth / window.innerHeight;
-			this.camera.updateProjectionMatrix();
-			this.renderer.setSize(window.innerWidth, window.innerHeight);
+			const container = document.getElementById('threejs-container');
+			if (container) {
+				const rect = container.getBoundingClientRect();
+				this.camera.aspect = rect.width / rect.height;
+				this.camera.updateProjectionMatrix();
+				this.renderer.setSize(rect.width, rect.height);
+			} else {
+				this.camera.aspect = window.innerWidth / window.innerHeight;
+				this.camera.updateProjectionMatrix();
+				this.renderer.setSize(window.innerWidth, window.innerHeight);
+			}
 		});
 		
 		// Start render loop
@@ -94,9 +112,9 @@ export const volume_service = {
 				case 'box':
 				default:
 					geometry = new THREE.BoxGeometry(
-						vol.hwd[1] || 1,    // width
-						vol.hwd[0] || 1,    // height
-						vol.hwd[2] || 1     // depth
+						vol.hwd[1] || 1,    // width (x)
+						vol.hwd[0] || 1,    // height (y)
+						vol.hwd[2] || 1     // depth (z)
 					);
 					break;
 			}
@@ -117,7 +135,12 @@ export const volume_service = {
 		
 		// Update mesh position and scale
 		const vol = entity.volume;
-		mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+		// For boxes (like the plot), center at ground level
+		if (vol.shape === 'box' && entity.kind === 'plot') {
+			mesh.position.set(vol.hwd[1]/2, vol.xyz[1], vol.hwd[2]/2);
+		} else {
+			mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+		}
 		
 		// For cylinders, update the geometry if height changed
 		if (vol.shape === 'cylinder' && mesh.geometry.parameters.height !== vol.hwd[0]) {

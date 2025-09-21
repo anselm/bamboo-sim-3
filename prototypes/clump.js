@@ -9,6 +9,7 @@ export const prototypical_dendrocalamus_asper_clump = {
 	CULM_MAX: 40,
 	CLUMP_PER_HECTARE: 150,
 	CLUMP_GAP_PER_AXIS: 8,
+	CLUMP_MAX_WIDTH: 12,  // Maximum width of a clump in meters
 	HARVEST_FIRST_DAY: 1825,
 	HARVEST_PERCENT: 20.0
 }
@@ -19,12 +20,32 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 	clump.createdat = this.updatedat = performance.now()
 	const max = this.CULM_MAX
 	let counter = 1
+	
+	// Distribute culms within the clump area (up to 12m diameter)
+	// Using a circular distribution pattern
+	const clumpRadius = this.CLUMP_MAX_WIDTH / 2
+	
 	for(let i = 0; i < max; i++) {
 		const culm = deepClone(prototypical_dendrocalamus_asper_culm)
 		culm.parent = clump.id
 		culm.id = clump.id + "/" + counter
 		culm.createdat = performance.now()
-		culm.xyz = [clump.xyz[0], 0, clump.xyz[2]]
+		
+		// Position culms in a circular pattern within the clump
+		// Center culm at clump center, others distributed around
+		if (i === 0) {
+			culm.xyz = [clump.xyz[0], 0, clump.xyz[2]]
+		} else {
+			// Distribute culms in concentric circles
+			const angle = (i / max) * 2 * Math.PI
+			const distance = (Math.random() * 0.7 + 0.3) * clumpRadius // 30-100% of radius
+			culm.xyz = [
+				clump.xyz[0] + Math.cos(angle) * distance,
+				0,
+				clump.xyz[2] + Math.sin(angle) * distance
+			]
+		}
+		
 		culm.hwd = [0, 0, 0] // height, width, depth - will grow over time
 		culm.age = 0 // age in days
 		counter++

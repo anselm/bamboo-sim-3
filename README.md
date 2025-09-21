@@ -11,7 +11,7 @@ npm run start
 
 1. A succinct ECS patterned, prototype based model of each agent, where I clone a prototype, and then run systems over clusters of related instances to do work.
 
-2. A reasonable model of a dendrocalamus asper, or giant bamboo, which grows in clumps that are about 6 meters apart, and where each clump has up to 40 individual poles (or culm as they are called). Growth of poles is on an s-curve, rapidly at first and slowing down towards old age. Harvesting of a clump starts at about 20% of that clump at about the 5 year mark. And each pole is worth about $12, and there is some estimate of co2 sequestration per pole, more mature clumps can sequester 2.24 kg per pole. There are usually 150 clumps per square hectare (a hectare is 10000 square meters).
+2. A reasonable model of a dendrocalamus asper, or giant bamboo, which grows in clumps that are spaced to avoid overlap (clumps can be up to 12 meters wide), and where each clump has up to 40 individual poles (or culm as they are called). Growth of poles is on an s-curve, rapidly at first and slowing down towards old age. Harvesting of a clump starts at about 20% of that clump at about the 5 year mark. And each pole is worth about $12, and there is some estimate of co2 sequestration per pole, more mature clumps can sequester 2.24 kg per pole. There are usually 150 clumps per square hectare (a hectare is 10000 square meters).
 
 3. Utter code clarity, easy to understand, clustering concepts in intuitive ways
 

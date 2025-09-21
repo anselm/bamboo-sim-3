@@ -15,10 +15,15 @@ prototypical_plot.onreset = function({width,depth}) {
 	const ref = prototypical_dendrocalamus_asper_clump
 	let counter = 1
 	
-	console.log(`Creating clumps with ${ref.CLUMP_GAP_PER_AXIS}m spacing...`)
+	// Ensure minimum spacing accounts for clump width
+	const minSpacing = Math.max(ref.CLUMP_GAP_PER_AXIS, ref.CLUMP_MAX_WIDTH)
+	console.log(`Creating clumps with ${minSpacing}m spacing (clump width: ${ref.CLUMP_MAX_WIDTH}m)...`)
 	
-	for(let x = 0; x < width; x += ref.CLUMP_GAP_PER_AXIS) {
-		for(let z = 0; z < depth; z += ref.CLUMP_GAP_PER_AXIS) {
+	// Start with offset to center clumps in plot
+	const startOffset = minSpacing / 2
+	
+	for(let x = startOffset; x < width; x += minSpacing) {
+		for(let z = startOffset; z < depth; z += minSpacing) {
 			const clump = deepClone(ref)
 			clump.parent = plot.id
 			clump.id = plot.id + "/" + counter
@@ -35,4 +40,5 @@ prototypical_plot.onreset = function({width,depth}) {
 	}
 	
 	console.log(`  Total clumps created: ${plot.children.length}`)
+	console.log(`  Actual density: ${(plot.children.length / (width * depth / 10000)).toFixed(2)} clumps per hectare`)
 }

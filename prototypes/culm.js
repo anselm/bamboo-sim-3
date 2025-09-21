@@ -24,7 +24,7 @@ export const prototypical_dendrocalamus_asper_culm = {
 	}
 }
 
-prototypical_dendrocalamus_asper_culm.ontick = function(daysElapsed) {
+prototypical_dendrocalamus_asper_culm.onstep = function(daysElapsed) {
 	const self = this
 	self.culm.age += daysElapsed
 	

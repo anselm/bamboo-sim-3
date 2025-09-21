@@ -18,8 +18,38 @@ function runSimulation(plot, years = 10) {
 	
 	// Run simulation day by day
 	for (let day = 1; day <= totalDays; day++) {
-		// Step forward one day
-		lastStepInfo = plot.onstep(1)
+		// Step forward one day using sys
+		sys({step: 1})
+		
+		// Get current statistics from plot
+		lastStepInfo = {
+			avgBambooHeight: 0,
+			avgCoffeeHeight: 0,
+			culmCount: 0,
+			coffeePlantCount: 0
+		}
+		
+		// Calculate current statistics
+		plot.children.forEach(entity => {
+			if (entity.metadata.title === 'Bamboo Clump') {
+				entity.children.forEach(culm => {
+					lastStepInfo.avgBambooHeight += culm.volume.hwd[0]
+					lastStepInfo.culmCount++
+				})
+			} else if (entity.metadata.title === 'Coffee Row') {
+				entity.children.forEach(plant => {
+					lastStepInfo.avgCoffeeHeight += plant.volume.hwd[0]
+					lastStepInfo.coffeePlantCount++
+				})
+			}
+		})
+		
+		if (lastStepInfo.culmCount > 0) {
+			lastStepInfo.avgBambooHeight /= lastStepInfo.culmCount
+		}
+		if (lastStepInfo.coffeePlantCount > 0) {
+			lastStepInfo.avgCoffeeHeight /= lastStepInfo.coffeePlantCount
+		}
 		
 		// Check if we've completed a year
 		if (day % 365 === 0) {

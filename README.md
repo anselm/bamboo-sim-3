@@ -46,5 +46,6 @@ The simulation creates a 100m x 100m plot and runs for 20 years with daily time 
 
 The simulation uses an event bus pattern via the `sys()` function which:
 - Automatically calls `onreset()` on entities that have it
-- Registers entities with `ontick()` methods for simulation updates
+- Registers entities with `onstep()` methods for simulation updates
+- Handles global stepping with `sys({step: days})` to advance all entities
 - Provides a declarative way to initialize entities with their properties set first

@@ -8,26 +8,30 @@
 ///	Usage is that you throw an object at this event bus, and listeners can perform actions on it
 ///
 
-const ontick = []
+const entities = []
 
 export function sys(blob) {
 
-	// onreset -> if your object has an onreset() method then call it now
+	// step -> if blob has a step property, call onstep on all registered entities
+	if(blob.step !== undefined) {
+		const daysElapsed = blob.step // For now, assume step is always in days
+		entities.forEach(entity => {
+			if(entity.onstep) {
+				entity.onstep(daysElapsed)
+			}
+		})
+		return
+	}
 
+	// onreset -> if your object has an onreset() method then call it now
 	if(blob.onreset) {
+		console.log("sys: resetting ",blob.id)
 		blob.onreset()
 	}
 
-	// ontick -> if your object has an ontick() method then stash it in a list
-
-	if(blob.ontick) {
-		ontick.push(blob)
-	}
-
-	// tick -> call all objects that have ontick
-
-	if(blob.tick) {
-		ontick.forEach(item=>{item.ontick()})
+	// Register entity if it has onstep method
+	if(blob.onstep) {
+		entities.push(blob)
 	}
 
 }

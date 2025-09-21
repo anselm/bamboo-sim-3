@@ -1,6 +1,7 @@
 import { prototypical_entity } from './entity.js';
 import { prototypical_coffee_plant } from './coffee.js';
 import { deepClone } from '../utils/deepClone.js';
+import { sys } from '../utils/sys.js';
 
 // A coffee row prototype - organizes coffee plants in rows between bamboo
 export const prototypical_coffee_row = {
@@ -53,6 +54,7 @@ prototypical_coffee_row.onreset = function() {
 		plant.coffee.age = 0
 		row.coffeerow.totalCostJoules += plant.coffee.JOULES_PER_PLANTING
 		row.children.push(plant)
+		sys(plant)
 	}
 }
 

@@ -39,7 +39,7 @@ export const prototypical_coffee_plant = {
 	}
 }
 
-prototypical_coffee_plant.ontick = function(daysElapsed) {
+prototypical_coffee_plant.onstep = function(daysElapsed) {
 	const self = this
 	self.coffee.age += daysElapsed
 	

@@ -81,6 +81,8 @@ prototypical_plot.onreset = function() {
 			clump.volume.xyz = [x, 0, z]
 			plot.children.push(clump)
 			sys(clump)
+			// Register all culms with sys
+			clump.children.forEach(culm => sys(culm))
 			
 			if (counter % 50 === 0) {
 				console.log(`  Created ${counter} clumps...`)
@@ -120,7 +122,7 @@ prototypical_plot.onreset = function() {
 prototypical_plot.onstep = function(daysElapsed) {
 	const plot = this
 	
-	// Growth phase - update all plants
+	// Calculate statistics from current state
 	let totalBambooHeight = 0
 	let culmCount = 0
 	let totalCoffeeHeight = 0
@@ -129,13 +131,11 @@ prototypical_plot.onstep = function(daysElapsed) {
 	plot.children.forEach(entity => {
 		if (entity.metadata.title === 'Bamboo Clump') {
 			entity.children.forEach(culm => {
-				culm.ontick(daysElapsed)
 				totalBambooHeight += culm.volume.hwd[0]
 				culmCount++
 			})
 		} else if (entity.metadata.title === 'Coffee Row') {
 			entity.children.forEach(plant => {
-				plant.ontick(daysElapsed)
 				totalCoffeeHeight += plant.volume.hwd[0]
 				coffeePlantCount++
 			})

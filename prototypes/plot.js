@@ -6,9 +6,11 @@ import { deepClone } from '../utils/deepClone.js';
 export const prototypical_plot = {
 	...prototypical_entity,
 	
-	title: 'Bamboo Plot',
-	description: 'A managed plot of land for growing bamboo',
-	unsplashImage: 'https://images.unsplash.com/photo-1518756131217-31eb79b20e8f',
+	metadata: {
+		title: 'Bamboo Plot',
+		description: 'A managed plot of land for growing bamboo',
+		unsplashImage: 'https://images.unsplash.com/photo-1518756131217-31eb79b20e8f'
+	},
 	
 	// Accumulated statistics
 	cumulativeHarvest: 0,

@@ -6,9 +6,11 @@ import { deepClone } from '../utils/deepClone.js';
 export const prototypical_dendrocalamus_asper_clump = {
 	...prototypical_entity,
 
-	title: 'Bamboo Clump',
-	description: 'A clump of giant bamboo containing up to 40 individual culms',
-	unsplashImage: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50',
+	metadata: {
+		title: 'Bamboo Clump',
+		description: 'A clump of giant bamboo containing up to 40 individual culms',
+		unsplashImage: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50'
+	},
 
 	CULM_MAX: 40,
 	CLUMP_PER_HECTARE: 150,

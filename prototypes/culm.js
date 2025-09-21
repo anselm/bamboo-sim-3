@@ -4,9 +4,11 @@ import { prototypical_entity } from './entity.js';
 export const prototypical_dendrocalamus_asper_culm = {
 	...prototypical_entity,
 
-	title: 'Giant Bamboo Culm',
-	description: 'A single pole of Dendrocalamus asper, one of the largest bamboo species',
-	unsplashImage: 'https://images.unsplash.com/photo-1567450489212-d37b5ba1b639',
+	metadata: {
+		title: 'Giant Bamboo Culm',
+		description: 'A single pole of Dendrocalamus asper, one of the largest bamboo species',
+		unsplashImage: 'https://images.unsplash.com/photo-1567450489212-d37b5ba1b639'
+	},
 
 	age:0,
 

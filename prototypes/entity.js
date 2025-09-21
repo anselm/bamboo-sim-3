@@ -11,7 +11,9 @@ export const prototypical_entity = {
 	createdat: null,
 	
 	// Metadata for display/UI
-	title: '',
-	description: '',
-	unsplashImage: ''
+	metadata: {
+		title: '',
+		description: '',
+		unsplashImage: ''
+	}
 }

@@ -5,6 +5,8 @@ import { deepClone } from '../utils/deepClone.js';
 // A dendrocalamus asper clump prototype - clone to use
 export const prototypical_dendrocalamus_asper_clump = {
 	...prototypical_entity,
+	
+	kind: 'clump',
 
 	metadata: {
 		title: 'Bamboo Clump',

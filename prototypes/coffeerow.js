@@ -6,6 +6,8 @@ import { sys } from '../utils/sys.js';
 // A coffee row prototype - organizes coffee plants in rows between bamboo
 export const prototypical_coffee_row = {
 	...prototypical_entity,
+	
+	kind: 'coffeerow',
 
 	metadata: {
 		title: 'Coffee Row',

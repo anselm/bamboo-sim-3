@@ -8,6 +8,8 @@ import { sys } from '../utils/sys.js';
 export const prototypical_plot = {
 	...prototypical_entity,
 	
+	kind: 'plot',
+	
 	metadata: {
 		title: 'Bamboo Plot',
 		description: 'A managed plot of land for growing bamboo',
@@ -92,8 +94,8 @@ prototypical_plot.onreset = function() {
 		}
 	}
 	
-	console.log(`  Total clumps created: ${plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length}`)
-	console.log(`  Actual density: ${(plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length / (plot.field.width * plot.field.depth / 10000)).toFixed(2)} clumps per hectare`)
+	console.log(`  Total clumps created: ${plot.children.filter(c => c.clump).length}`)
+	console.log(`  Actual density: ${(plot.children.filter(c => c.clump).length / (plot.field.width * plot.field.depth / 10000)).toFixed(2)} clumps per hectare`)
 	
 	// Add coffee rows if intercropping is enabled
 	if (plot.field.ENABLE_INTERCROPPING) {
@@ -129,12 +131,12 @@ prototypical_plot.onstep = function(daysElapsed) {
 	let coffeePlantCount = 0
 	
 	plot.children.forEach(entity => {
-		if (entity.metadata.title === 'Bamboo Clump') {
+		if (entity.clump) {
 			entity.children.forEach(culm => {
 				totalBambooHeight += culm.volume.hwd[0]
 				culmCount++
 			})
-		} else if (entity.metadata.title === 'Coffee Row') {
+		} else if (entity.coffeerow) {
 			entity.children.forEach(plant => {
 				totalCoffeeHeight += plant.volume.hwd[0]
 				coffeePlantCount++
@@ -153,7 +155,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 	const dayOfYear = (plot.stats.days[plot.stats.days.length - 1] || 0) % 365
 	
 	plot.children.forEach(entity => {
-		if (entity.metadata.title === 'Bamboo Clump') {
+		if (entity.clump) {
 			const beforeHarvest = entity.clump.totalHarvested
 			const beforeCost = entity.clump.totalCostJoules
 			
@@ -161,7 +163,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 			
 			stepBambooHarvest += entity.clump.totalHarvested - beforeHarvest
 			stepCostJoules += entity.clump.totalCostJoules - beforeCost
-		} else if (entity.metadata.title === 'Coffee Row') {
+		} else if (entity.coffeerow) {
 			const beforeHarvest = entity.coffeerow.totalHarvested
 			const beforeCost = entity.coffeerow.totalCostJoules
 			
@@ -179,12 +181,12 @@ prototypical_plot.onstep = function(daysElapsed) {
 	plot.stats.cumulativeCostJoules = 0
 	
 	plot.children.forEach(entity => {
-		if (entity.metadata.title === 'Bamboo Clump') {
+		if (entity.clump) {
 			plot.stats.cumulativeHarvest += entity.clump.totalHarvested
 			plot.stats.cumulativeValue += entity.clump.totalValue
 			plot.stats.cumulativeCO2 += entity.clump.totalCO2
 			plot.stats.cumulativeCostJoules += entity.clump.totalCostJoules
-		} else if (entity.metadata.title === 'Coffee Row') {
+		} else if (entity.coffeerow) {
 			plot.stats.cumulativeValue += entity.coffeerow.totalValue
 			plot.stats.cumulativeCO2 += entity.coffeerow.totalCO2
 			plot.stats.cumulativeCostJoules += entity.coffeerow.totalCostJoules

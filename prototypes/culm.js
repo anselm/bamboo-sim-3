@@ -3,6 +3,8 @@ import { prototypical_entity } from './entity.js';
 // A dendrocalamus asper culm prototype - clone to use
 export const prototypical_dendrocalamus_asper_culm = {
 	...prototypical_entity,
+	
+	kind: 'culm',
 
 	metadata: {
 		title: 'Giant Bamboo Culm',

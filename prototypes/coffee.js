@@ -3,6 +3,8 @@ import { prototypical_entity } from './entity.js';
 // A coffee plant prototype - clone to use
 export const prototypical_coffee_plant = {
 	...prototypical_entity,
+	
+	kind: 'coffee',
 
 	metadata: {
 		title: 'Coffee Plant',

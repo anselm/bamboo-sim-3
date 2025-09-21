@@ -31,12 +31,12 @@ function runSimulation(plot, years = 10) {
 		
 		// Calculate current statistics
 		plot.children.forEach(entity => {
-			if (entity.metadata.title === 'Bamboo Clump') {
+			if (entity.clump) {
 				entity.children.forEach(culm => {
 					lastStepInfo.avgBambooHeight += culm.volume.hwd[0]
 					lastStepInfo.culmCount++
 				})
-			} else if (entity.metadata.title === 'Coffee Row') {
+			} else if (entity.coffeerow) {
 				entity.children.forEach(plant => {
 					lastStepInfo.avgCoffeeHeight += plant.volume.hwd[0]
 					lastStepInfo.coffeePlantCount++
@@ -60,7 +60,7 @@ function runSimulation(plot, years = 10) {
 			// Get coffee harvest data
 			let coffeeKg = 0
 			plot.children.forEach(entity => {
-				if (entity.metadata.title === 'Coffee Row') {
+				if (entity.coffeerow) {
 					coffeeKg += entity.coffeerow.totalHarvested
 				}
 			})
@@ -94,10 +94,10 @@ function main() {
 	sys(plot)
 
 	// log a few details
-	const clumpCount = plot.children.filter(c => c.metadata.title === 'Bamboo Clump').length
-	const coffeeRowCount = plot.children.filter(c => c.metadata.title === 'Coffee Row').length
+	const clumpCount = plot.children.filter(c => c.clump).length
+	const coffeeRowCount = plot.children.filter(c => c.coffeerow).length
 	const totalCulms = clumpCount * prototypical_dendrocalamus_asper_clump.clump.CULM_MAX
-	const totalCoffeePlants = coffeeRowCount * (plot.children.find(c => c.metadata.title === 'Coffee Row')?.coffeerow.PLANTS_PER_ROW || 0)
+	const totalCoffeePlants = coffeeRowCount * (plot.children.find(c => c.coffeerow)?.coffeerow.PLANTS_PER_ROW || 0)
 	
 	console.log(`\nPlot initialized in ${((performance.now() - startTime) / 1000).toFixed(2)} seconds`)
 	console.log(`  - ${clumpCount} bamboo clumps`)
@@ -122,7 +122,7 @@ function main() {
 	let totalCoffeeKg = 0
 	let totalCoffeeValue = 0
 	plot.children.forEach(entity => {
-		if (entity.metadata.title === 'Coffee Row') {
+		if (entity.coffeerow) {
 			totalCoffeeKg += entity.coffeerow.totalHarvested
 			totalCoffeeValue += entity.coffeerow.totalValue
 		}

@@ -81,7 +81,20 @@ export class BambooSimApp {
         sys(this.plot);
         
         // Send all entities through sys so volume service can see them
+        this.registerAllEntities();
         this.updateStats();
+    }
+    
+    registerAllEntities() {
+        // Register all children with sys
+        this.plot.children.forEach(entity => {
+            sys(entity);
+            
+            // Register grandchildren (culms, coffee plants)
+            if (entity.children) {
+                entity.children.forEach(child => sys(child));
+            }
+        });
     }
     
     updateAllEntities() {

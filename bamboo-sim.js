@@ -3,14 +3,6 @@ import { sys } from './utils/sys.js';
 import { prototypical_plot } from './prototypes/plot.js';
 import { prototypical_dendrocalamus_asper_clump } from './prototypes/clump.js';
 
-// Simulation statistics
-const simulationStats = {
-	days: [],
-	totalGrowth: [],
-	totalHarvest: [],
-	economicYield: [],
-	co2Sequestered: []
-}
 
 // Main simulation function
 function runSimulation(plot, years = 10, daysPerStep = 30) {
@@ -36,8 +28,8 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 			// Check if we've reached a year mark
 			if (currentDay >= nextYearMark && currentDay > 0) {
 				const year = Math.floor(currentDay / 365)
-				const yearlyBambooHarvest = plot.cumulativeHarvest - lastYearHarvest
-				lastYearHarvest = plot.cumulativeHarvest
+				const yearlyBambooHarvest = plot.stats.cumulativeHarvest - lastYearHarvest
+				lastYearHarvest = plot.stats.cumulativeHarvest
 				
 				// Get coffee harvest data
 				let coffeeKg = 0
@@ -47,7 +39,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 					}
 				})
 				
-				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
+				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.stats.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.stats.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.stats.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.stats.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
 				
 				nextYearMark += 365
 			}
@@ -58,7 +50,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 	
 	console.log("└──────┴────────────┴────────────┴──────────────┴──────────────┴──────────────┴────────────┴──────────────┴──────────────┘")
 	
-	return plot.simulationStats
+	return plot.stats
 }
 
 // Run a simulation exercise
@@ -103,7 +95,7 @@ function main() {
 	// log final stats
 	console.log(`\nSimulation completed in ${((performance.now() - simStartTime) / 1000).toFixed(2)} seconds`)
 	console.log("\nFinal statistics:")
-	console.log(`  Total culms harvested: ${Math.round(plot.cumulativeHarvest)}`)
+	console.log(`  Total culms harvested: ${Math.round(plot.stats.cumulativeHarvest)}`)
 	
 	// Calculate coffee totals
 	let totalCoffeeKg = 0
@@ -116,14 +108,14 @@ function main() {
 	})
 	
 	console.log(`  Total coffee harvested: ${totalCoffeeKg.toFixed(2)}kg`)
-	console.log(`  Total economic yield: $${plot.cumulativeValue.toFixed(2)}`)
-	console.log(`    - Bamboo: $${(plot.cumulativeValue - totalCoffeeValue).toFixed(2)}`)
+	console.log(`  Total economic yield: $${plot.stats.cumulativeValue.toFixed(2)}`)
+	console.log(`    - Bamboo: $${(plot.stats.cumulativeValue - totalCoffeeValue).toFixed(2)}`)
 	console.log(`    - Coffee: $${totalCoffeeValue.toFixed(2)}`)
-	console.log(`  Total CO2 sequestered: ${plot.cumulativeCO2.toFixed(2)}kg`)
-	console.log(`  Total energy invested: ${(plot.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
-	console.log(`  Total cost invested: $${(plot.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(2)}`)
-	console.log(`  Average yield per hectare: $${(plot.cumulativeValue / (100 * 100 / 10000)).toFixed(2)}`)
-	console.log(`  Net profit: $${(plot.cumulativeValue - (plot.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE)).toFixed(2)}`)
+	console.log(`  Total CO2 sequestered: ${plot.stats.cumulativeCO2.toFixed(2)}kg`)
+	console.log(`  Total energy invested: ${(plot.stats.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
+	console.log(`  Total cost invested: $${(plot.stats.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(2)}`)
+	console.log(`  Average yield per hectare: $${(plot.stats.cumulativeValue / (100 * 100 / 10000)).toFixed(2)}`)
+	console.log(`  Net profit: $${(plot.stats.cumulativeValue - (plot.stats.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE)).toFixed(2)}`)
 }
 
 // Run the simulation when the file is loaded

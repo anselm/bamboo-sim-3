@@ -23,14 +23,15 @@ export const prototypical_plot = {
 		COFFEE_ROW_SPACING: 4,  // Place coffee rows every 4 meters
 	},
 	
-	// Accumulated statistics
-	cumulativeHarvest: 0,
-	cumulativeValue: 0,
-	cumulativeCO2: 0,
-	cumulativeCostJoules: 0,
-	
-	// Simulation history
-	simulationStats: {
+	// Statistics
+	stats: {
+		// Accumulated totals
+		cumulativeHarvest: 0,
+		cumulativeValue: 0,
+		cumulativeCO2: 0,
+		cumulativeCostJoules: 0,
+		
+		// Time series data
 		days: [],
 		totalGrowth: [],
 		totalHarvest: [],
@@ -46,14 +47,15 @@ prototypical_plot.onreset = function() {
 	plot.createdat = plot.updatedat = performance.now()
 	plot.volume.hwd = [plot.field.width, 0, plot.field.depth]
 	
-	// Initialize accumulated statistics
-	plot.cumulativeHarvest = 0
-	plot.cumulativeValue = 0
-	plot.cumulativeCO2 = 0
-	plot.cumulativeCostJoules = 0
-	
-	// Reset simulation history
-	plot.simulationStats = {
+	// Reset all statistics
+	plot.stats = {
+		// Accumulated totals
+		cumulativeHarvest: 0,
+		cumulativeValue: 0,
+		cumulativeCO2: 0,
+		cumulativeCostJoules: 0,
+		
+		// Time series data
 		days: [],
 		totalGrowth: [],
 		totalHarvest: [],
@@ -148,7 +150,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 	let stepCostJoules = 0
 	
 	// Calculate day of year for coffee harvest timing
-	const dayOfYear = (plot.simulationStats.days[plot.simulationStats.days.length - 1] || 0) % 365
+	const dayOfYear = (plot.stats.days[plot.stats.days.length - 1] || 0) % 365
 	
 	plot.children.forEach(entity => {
 		if (entity.metadata.title === 'Bamboo Clump') {
@@ -171,31 +173,31 @@ prototypical_plot.onstep = function(daysElapsed) {
 	})
 	
 	// Update plot cumulative stats from clumps
-	plot.cumulativeHarvest = 0
-	plot.cumulativeValue = 0
-	plot.cumulativeCO2 = 0
-	plot.cumulativeCostJoules = 0
+	plot.stats.cumulativeHarvest = 0
+	plot.stats.cumulativeValue = 0
+	plot.stats.cumulativeCO2 = 0
+	plot.stats.cumulativeCostJoules = 0
 	
 	plot.children.forEach(entity => {
 		if (entity.metadata.title === 'Bamboo Clump') {
-			plot.cumulativeHarvest += entity.totalHarvested
+			plot.stats.cumulativeHarvest += entity.totalHarvested
 		}
-		plot.cumulativeValue += entity.totalValue
-		plot.cumulativeCO2 += entity.totalCO2
-		plot.cumulativeCostJoules += entity.totalCostJoules
+		plot.stats.cumulativeValue += entity.totalValue
+		plot.stats.cumulativeCO2 += entity.totalCO2
+		plot.stats.cumulativeCostJoules += entity.totalCostJoules
 	})
 	
 	// Record statistics
-	const currentDay = plot.simulationStats.days.length > 0 
-		? plot.simulationStats.days[plot.simulationStats.days.length - 1] + daysElapsed 
+	const currentDay = plot.stats.days.length > 0 
+		? plot.stats.days[plot.stats.days.length - 1] + daysElapsed 
 		: daysElapsed
 		
-	plot.simulationStats.days.push(currentDay)
-	plot.simulationStats.totalGrowth.push(totalBambooHeight / (culmCount || 1)) // average bamboo height
-	plot.simulationStats.totalHarvest.push(plot.cumulativeHarvest)
-	plot.simulationStats.economicYield.push(plot.cumulativeValue)
-	plot.simulationStats.co2Sequestered.push(plot.cumulativeCO2)
-	plot.simulationStats.energyCostJoules.push(plot.cumulativeCostJoules)
+	plot.stats.days.push(currentDay)
+	plot.stats.totalGrowth.push(totalBambooHeight / (culmCount || 1)) // average bamboo height
+	plot.stats.totalHarvest.push(plot.stats.cumulativeHarvest)
+	plot.stats.economicYield.push(plot.stats.cumulativeValue)
+	plot.stats.co2Sequestered.push(plot.stats.cumulativeCO2)
+	plot.stats.energyCostJoules.push(plot.stats.cumulativeCostJoules)
 	
 	// Return step info for logging
 	return {

@@ -5,7 +5,7 @@ import { prototypical_dendrocalamus_asper_clump } from './prototypes/clump.js';
 
 
 // Main simulation function
-function runSimulation(plot, years = 10, daysPerStep = 30) {
+function runSimulation(plot, years = 10) {
 	const totalDays = years * 365
 	
 	// Print table header
@@ -14,37 +14,28 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 	console.log("├──────┼────────────┼────────────┼──────────────┼──────────────┼──────────────┼────────────┼──────────────┼──────────────┤")
 	
 	let lastYearHarvest = 0
-	let currentDay = 0
-	let nextYearMark = 365
+	let lastStepInfo = null
 	
-	while (currentDay < totalDays) {
-		// Calculate days until next year mark or end of simulation
-		const daysToStep = Math.min(daysPerStep, nextYearMark - currentDay, totalDays - currentDay)
+	// Run simulation day by day
+	for (let day = 1; day <= totalDays; day++) {
+		// Step forward one day
+		lastStepInfo = plot.onstep(1)
 		
-		if (daysToStep > 0) {
-			const stepInfo = plot.onstep(daysToStep)
-			currentDay = stepInfo.currentDay
+		// Check if we've completed a year
+		if (day % 365 === 0) {
+			const year = day / 365
+			const yearlyBambooHarvest = plot.stats.cumulativeHarvest - lastYearHarvest
+			lastYearHarvest = plot.stats.cumulativeHarvest
 			
-			// Check if we've reached a year mark
-			if (currentDay >= nextYearMark && currentDay > 0) {
-				const year = Math.floor(currentDay / 365)
-				const yearlyBambooHarvest = plot.stats.cumulativeHarvest - lastYearHarvest
-				lastYearHarvest = plot.stats.cumulativeHarvest
-				
-				// Get coffee harvest data
-				let coffeeKg = 0
-				plot.children.forEach(entity => {
-					if (entity.metadata.title === 'Coffee Row') {
-						coffeeKg += entity.coffeerow.totalHarvested
-					}
-				})
-				
-				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${stepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.stats.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.stats.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.stats.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.stats.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
-				
-				nextYearMark += 365
-			}
-		} else {
-			break
+			// Get coffee harvest data
+			let coffeeKg = 0
+			plot.children.forEach(entity => {
+				if (entity.metadata.title === 'Coffee Row') {
+					coffeeKg += entity.coffeerow.totalHarvested
+				}
+			})
+			
+			console.log(`│ ${year.toString().padStart(4)} │ ${lastStepInfo.avgBambooHeight.toFixed(2).padStart(9)}m │ ${lastStepInfo.avgCoffeeHeight.toFixed(2).padStart(9)}m │ ${Math.round(yearlyBambooHarvest).toString().padStart(12)} │ ${coffeeKg.toFixed(1).padStart(12)} │ ${plot.stats.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.stats.cumulativeCO2.toFixed(0).padStart(10)} │ ${(plot.stats.cumulativeCostJoules / 1000000).toFixed(0).padStart(12)} │ ${(plot.stats.cumulativeCostJoules / 1000000 * plot.field.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │`)
 		}
 	}
 	
@@ -86,11 +77,11 @@ function main() {
 	console.log(`  - Bamboo density: ${(clumpCount / (100 * 100 / 10000)).toFixed(2)} clumps per hectare`)
 	
 	console.log("\nRunning 20-year simulation...")
-	console.log("(30-day time steps, logging annually)")
+	console.log("(daily time steps, logging annually)")
 	
 	// run simulation
 	const simStartTime = performance.now()
-	const stats = runSimulation(plot, 20, 30)
+	const stats = runSimulation(plot, 20)
 
 	// log final stats
 	console.log(`\nSimulation completed in ${((performance.now() - simStartTime) / 1000).toFixed(2)} seconds`)

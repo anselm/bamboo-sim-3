@@ -40,7 +40,7 @@ npm run start
 node bamboo-sim.js
 ```
 
-The simulation creates a 100m x 100m plot and runs for 20 years, logging statistics annually.
+The simulation creates a 100m x 100m plot and runs for 20 years with daily time steps, logging statistics annually.
 
 ## Architecture
 

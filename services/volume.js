@@ -11,6 +11,7 @@ export const volume_service = {
 	renderer: null,
 	controls: null,
 	meshes: new Map(), // Map entity IDs to their meshes
+	entities: new Map(), // Map entity IDs to entities with volume
 	
 	onreset: function() {
 		console.log("Volume service initializing 3D scene...")
@@ -86,6 +87,9 @@ export const volume_service = {
 		// Only process entities with volume information
 		if (!entity.volume) return;
 		
+		// Store reference to entity
+		this.entities.set(entity.id, entity);
+		
 		// Create or update mesh for this entity
 		let mesh = this.meshes.get(entity.id);
 		
@@ -152,6 +156,43 @@ export const volume_service = {
 				16
 			);
 		}
+	},
+	
+	onstep: function(daysElapsed) {
+		// Update all meshes based on current entity states
+		this.entities.forEach((entity, id) => {
+			const mesh = this.meshes.get(id);
+			if (!mesh) return;
+			
+			const vol = entity.volume;
+			
+			// Update position
+			if (vol.shape === 'box' && entity.kind === 'plot') {
+				mesh.position.set(vol.hwd[1]/2, vol.xyz[1], vol.hwd[2]/2);
+			} else {
+				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+			}
+			
+			// For cylinders, update geometry if height changed
+			if (vol.shape === 'cylinder' && mesh.geometry.parameters.height !== vol.hwd[0]) {
+				mesh.geometry.dispose();
+				mesh.geometry = new THREE.CylinderGeometry(
+					vol.hwd[1] || 0.1,
+					vol.hwd[1] || 0.1,
+					vol.hwd[0] || 1,
+					16
+				);
+			}
+			
+			// For spheres (coffee plants), update size
+			if (vol.shape === 'sphere' && mesh.geometry.parameters.radius !== vol.hwd[1]) {
+				mesh.geometry.dispose();
+				mesh.geometry = new THREE.SphereGeometry(
+					vol.hwd[1] || 0.5,
+					16, 16
+				);
+			}
+		});
 	},
 	
 	animate: function() {

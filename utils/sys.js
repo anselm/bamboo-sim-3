@@ -21,14 +21,10 @@ export function sys(blob) {
 				entity.onstep(daysElapsed)
 			}
 		})
-		return
-	}
-
-	// volumeUpdate -> special event to update volume service without triggering onreset
-	if(blob.volumeUpdate && blob.entity) {
+		// Also step observers (like volume service)
 		observers.forEach(observer => {
-			if(observer.onentity) {
-				observer.onentity(blob.entity)
+			if(observer.onstep) {
+				observer.onstep(daysElapsed)
 			}
 		})
 		return

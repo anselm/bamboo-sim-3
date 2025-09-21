@@ -6,18 +6,36 @@ import { deepClone } from '../utils/deepClone.js';
 export const prototypical_dendrocalamus_asper_clump = {
 	...prototypical_entity,
 
+	title: 'Bamboo Clump',
+	description: 'A clump of giant bamboo containing up to 40 individual culms',
+	unsplashImage: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50',
+
 	CULM_MAX: 40,
 	CLUMP_PER_HECTARE: 150,
 	CLUMP_GAP_PER_AXIS: 8,
 	CLUMP_MAX_WIDTH: 12,  // Maximum width of a clump in meters
 	HARVEST_FIRST_DAY: 1825,
-	HARVEST_PERCENT: 20.0
+	HARVEST_PERCENT: 20.0,
+	JOULES_PER_CLUMP_PLANTING: 36000000, // 10 kWh = 36 MJ (energy to plant a clump)
+	
+	// Accumulated statistics
+	totalHarvested: 0,
+	totalValue: 0,
+	totalCO2: 0,
+	totalCostJoules: 0
 }
 
 prototypical_dendrocalamus_asper_clump.onreset = function() {
 	const clump = this
 	clump.children = []
 	clump.createdat = this.updatedat = performance.now()
+	
+	// Initialize statistics
+	clump.totalHarvested = 0
+	clump.totalValue = 0
+	clump.totalCO2 = 0
+	clump.totalCostJoules = clump.JOULES_PER_CLUMP_PLANTING // Initial planting cost
+	
 	const max = this.CULM_MAX
 	let counter = 1
 	
@@ -71,11 +89,19 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 		totalValue += culm.USD_PER_CULM
 		totalCO2 += culm.CO2_KG_PER_CULM
 		
+		// Add harvesting energy cost
+		clump.totalCostJoules += culm.JOULES_PER_HARVEST
+		
 		// Reset harvested culm to newborn state
 		culm.age = 0
 		culm.hwd = [0, 0, 0]
 		culm.createdat = performance.now()
 	}
+	
+	// Accumulate in clump
+	clump.totalHarvested += harvestCount
+	clump.totalValue += totalValue
+	clump.totalCO2 += totalCO2
 	
 	return { count: harvestCount, value: totalValue, co2: totalCO2 }
 }

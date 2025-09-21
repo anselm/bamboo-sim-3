@@ -6,5 +6,10 @@ export const prototypical_entity = {
 	ypr: [ 0,0,0 ],
 	parent: 0,
 	children: [],
-	createdat: null,	
+	createdat: null,
+	
+	// Metadata for display/UI
+	title: '',
+	description: '',
+	unsplashImage: ''
 }

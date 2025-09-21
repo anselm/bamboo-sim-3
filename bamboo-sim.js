@@ -16,67 +16,22 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 	const totalDays = years * 365
 	const steps = Math.floor(totalDays / daysPerStep)
 	
-	// Reset stats
-	simulationStats.days = []
-	simulationStats.totalGrowth = []
-	simulationStats.totalHarvest = []
-	simulationStats.economicYield = []
-	simulationStats.co2Sequestered = []
-	
-	let cumulativeHarvest = 0
-	let cumulativeValue = 0
-	let cumulativeCO2 = 0
-	
 	for (let step = 0; step < steps; step++) {
-		const currentDay = step * daysPerStep
-		
-		// Growth phase - update all culms
-		let totalHeight = 0
-		let culmCount = 0
-		
-		plot.children.forEach(clump => {
-			clump.children.forEach(culm => {
-				culm.ontick(daysPerStep)
-				totalHeight += culm.hwd[0]
-				culmCount++
-			})
-		})
-		
-		// Harvest phase - check each clump
-		let stepHarvest = 0
-		let stepValue = 0
-		let stepCO2 = 0
-		
-		plot.children.forEach(clump => {
-			const harvest = clump.onharvest()
-			stepHarvest += harvest.count
-			stepValue += harvest.value
-			stepCO2 += harvest.co2
-		})
-		
-		cumulativeHarvest += stepHarvest
-		cumulativeValue += stepValue
-		cumulativeCO2 += stepCO2
-		
-		// Record statistics
-		simulationStats.days.push(currentDay)
-		simulationStats.totalGrowth.push(totalHeight / culmCount) // average height
-		simulationStats.totalHarvest.push(cumulativeHarvest)
-		simulationStats.economicYield.push(cumulativeValue)
-		simulationStats.co2Sequestered.push(cumulativeCO2)
+		const stepInfo = plot.onstep(daysPerStep)
 		
 		// Log progress every year
-		if (currentDay % 365 === 0 && currentDay > 0) {
-			console.log(`\nYear ${currentDay / 365}:`)
-			console.log(`  Average culm height: ${(totalHeight / culmCount).toFixed(2)}m`)
-			console.log(`  Total harvested: ${cumulativeHarvest} culms`)
-			console.log(`  Economic yield: $${cumulativeValue.toFixed(2)}`)
-			console.log(`  CO2 sequestered: ${cumulativeCO2.toFixed(2)}kg`)
-			console.log(`  Harvest this year: ${stepHarvest} culms`)
+		if (stepInfo.currentDay % 365 === 0 && stepInfo.currentDay > 0) {
+			console.log(`\nYear ${stepInfo.currentDay / 365}:`)
+			console.log(`  Average culm height: ${stepInfo.avgHeight.toFixed(2)}m`)
+			console.log(`  Total harvested: ${plot.cumulativeHarvest} culms`)
+			console.log(`  Economic yield: $${plot.cumulativeValue.toFixed(2)}`)
+			console.log(`  CO2 sequestered: ${plot.cumulativeCO2.toFixed(2)}kg`)
+			console.log(`  Energy invested: ${(plot.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
+			console.log(`  Harvest this year: ${stepInfo.stepHarvest} culms`)
 		}
 	}
 	
-	return simulationStats
+	return plot.simulationStats
 }
 
 // Run a simulation exercise
@@ -112,10 +67,12 @@ function main() {
 	// log final stats
 	console.log(`\nSimulation completed in ${((performance.now() - simStartTime) / 1000).toFixed(2)} seconds`)
 	console.log("\nFinal statistics:")
-	console.log(`  Total culms harvested: ${stats.totalHarvest[stats.totalHarvest.length - 1]}`)
-	console.log(`  Total economic yield: $${stats.economicYield[stats.economicYield.length - 1].toFixed(2)}`)
-	console.log(`  Total CO2 sequestered: ${stats.co2Sequestered[stats.co2Sequestered.length - 1].toFixed(2)}kg`)
-	console.log(`  Average yield per hectare: $${(stats.economicYield[stats.economicYield.length - 1] / (100 * 100 / 10000)).toFixed(2)}`)
+	console.log(`  Total culms harvested: ${plot.cumulativeHarvest}`)
+	console.log(`  Total economic yield: $${plot.cumulativeValue.toFixed(2)}`)
+	console.log(`  Total CO2 sequestered: ${plot.cumulativeCO2.toFixed(2)}kg`)
+	console.log(`  Total energy invested: ${(plot.cumulativeCostJoules / 1000000).toFixed(2)} MJ`)
+	console.log(`  Average yield per hectare: $${(plot.cumulativeValue / (100 * 100 / 10000)).toFixed(2)}`)
+	console.log(`  Net energy balance: ${((plot.cumulativeValue * 3600000 - plot.cumulativeCostJoules) / 1000000).toFixed(2)} MJ`) // Assuming $1 = 1 kWh equivalent
 }
 
 // Run the simulation when the file is loaded

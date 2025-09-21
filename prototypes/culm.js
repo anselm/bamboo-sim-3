@@ -4,8 +4,15 @@ import { prototypical_entity } from './entity.js';
 export const prototypical_dendrocalamus_asper_culm = {
 	...prototypical_entity,
 
+	title: 'Giant Bamboo Culm',
+	description: 'A single pole of Dendrocalamus asper, one of the largest bamboo species',
+	unsplashImage: 'https://images.unsplash.com/photo-1567450489212-d37b5ba1b639',
+
+	age:0,
+
 	USD_PER_CULM: 12.0,
 	CO2_KG_PER_CULM: 2.21,
+	JOULES_PER_HARVEST: 3600000, // 1 kWh = 3.6 MJ (rough estimate for harvesting energy)
 	
 	// Growth parameters
 	MAX_HEIGHT_METERS: 30,        // Giant bamboo can reach 30m

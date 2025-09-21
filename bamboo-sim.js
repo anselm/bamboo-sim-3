@@ -13,9 +13,6 @@ Here are my thoughts so far:
 
 */
 
-// Run the simulation when the file is loaded
-main()
-
 //
 // basic prototypical entities share these properties
 //
@@ -291,5 +288,8 @@ things to do later on:
 - invent another organism, such as coffee, and try intercropping
 
 */
+
+// Run the simulation when the file is loaded
+main()
 
 

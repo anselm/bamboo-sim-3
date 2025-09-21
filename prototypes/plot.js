@@ -112,18 +112,27 @@ prototypical_plot.onreset = function() {
 		console.log(`\nAdding coffee rows for intercropping...`)
 		let coffeeCounter = 1
 		
-		// Place coffee rows between bamboo clumps
-		for (let z = startOffset + plot.field.COFFEE_ROW_SPACING; z < plot.field.depth - plot.field.COFFEE_ROW_SPACING; z += minSpacing) {
-			// Skip rows that would be too close to bamboo
-			if ((z - startOffset) % minSpacing < plot.field.COFFEE_ROW_SPACING) continue
-			
-			const coffeeRow = deepClone(prototypical_coffee_row)
-			coffeeRow.parent = plot.id
-			coffeeRow.id = plot.id + "/coffee/" + coffeeCounter
-			coffeeRow.volume.xyz = [startOffset, 0, z]
-			plot.children.push(coffeeRow)
-			sys(coffeeRow)
-			coffeeCounter++
+		// Place coffee rows in a grid pattern between bamboo clumps
+		// We'll place them at the midpoints between bamboo clumps
+		const coffeeOffset = minSpacing / 2
+		
+		for (let x = coffeeOffset; x < plot.field.width; x += minSpacing) {
+			for (let z = coffeeOffset; z < plot.field.depth; z += minSpacing) {
+				// Check if this position would overlap with a bamboo clump
+				// Coffee rows are placed at the midpoints between bamboo clumps
+				const isBambooRow = ((x - startOffset + coffeeOffset) % minSpacing) < 1 && 
+				                   ((z - startOffset + coffeeOffset) % minSpacing) < 1
+				
+				if (!isBambooRow) {
+					const coffeeRow = deepClone(prototypical_coffee_row)
+					coffeeRow.parent = plot.id
+					coffeeRow.id = plot.id + "/coffee/" + coffeeCounter
+					coffeeRow.volume.xyz = [x, 0, z]
+					plot.children.push(coffeeRow)
+					sys(coffeeRow)
+					coffeeCounter++
+				}
+			}
 		}
 		
 		console.log(`  Total coffee rows created: ${coffeeCounter - 1}`)

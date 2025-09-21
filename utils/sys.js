@@ -24,6 +24,16 @@ export function sys(blob) {
 		return
 	}
 
+	// volumeUpdate -> special event to update volume service without triggering onreset
+	if(blob.volumeUpdate && blob.entity) {
+		observers.forEach(observer => {
+			if(observer.onentity) {
+				observer.onentity(blob.entity)
+			}
+		})
+		return
+	}
+
 	// Call all observers with the blob
 	observers.forEach(observer => {
 		if(observer.onentity) {

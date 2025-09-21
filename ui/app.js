@@ -86,16 +86,24 @@ export class BambooSimApp {
     }
     
     updateAllEntities() {
-        // Update plot
-        sys(this.plot);
+        // Send volume update events for rendering
+        // We need a way to update the volume service without triggering onreset
+        // For now, we'll create a special update event
+        const updateEvent = { 
+            volumeUpdate: true,
+            entity: this.plot 
+        };
+        sys(updateEvent);
         
         // Update all children
         this.plot.children.forEach(entity => {
-            sys(entity);
+            sys({ volumeUpdate: true, entity: entity });
             
             // Update grandchildren (culms, coffee plants)
             if (entity.children) {
-                entity.children.forEach(child => sys(child));
+                entity.children.forEach(child => {
+                    sys({ volumeUpdate: true, entity: child });
+                });
             }
         });
     }

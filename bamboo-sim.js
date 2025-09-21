@@ -14,7 +14,6 @@ const simulationStats = {
 // Main simulation function
 function runSimulation(plot, years = 10, daysPerStep = 30) {
 	const totalDays = years * 365
-	const steps = Math.floor(totalDays / daysPerStep)
 	
 	// Print table header
 	console.log("\n┌──────┬────────────┬────────────┬──────────────┬──────────────┬────────────┬──────────────┬──────────────┐")
@@ -22,17 +21,29 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 	console.log("├──────┼────────────┼────────────┼──────────────┼──────────────┼────────────┼──────────────┼──────────────┤")
 	
 	let lastYearHarvest = 0
+	let currentDay = 0
+	let nextYearMark = 365
 	
-	for (let step = 0; step < steps; step++) {
-		const stepInfo = plot.onstep(daysPerStep)
+	while (currentDay < totalDays) {
+		// Calculate days until next year mark or end of simulation
+		const daysToStep = Math.min(daysPerStep, nextYearMark - currentDay, totalDays - currentDay)
 		
-		// Log progress every year
-		if (stepInfo.currentDay % 365 === 0 && stepInfo.currentDay > 0) {
-			const year = stepInfo.currentDay / 365
-			const yearlyHarvest = plot.cumulativeHarvest - lastYearHarvest
-			lastYearHarvest = plot.cumulativeHarvest
+		if (daysToStep > 0) {
+			const stepInfo = plot.onstep(daysToStep)
+			currentDay = stepInfo.currentDay
 			
-			console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgHeight.toFixed(2).padStart(9)}m │ ${plot.cumulativeHarvest.toString().padStart(10)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │ ${yearlyHarvest.toString().padStart(12)} │`)
+			// Check if we've reached a year mark
+			if (currentDay >= nextYearMark && currentDay > 0) {
+				const year = Math.floor(currentDay / 365)
+				const yearlyHarvest = plot.cumulativeHarvest - lastYearHarvest
+				lastYearHarvest = plot.cumulativeHarvest
+				
+				console.log(`│ ${year.toString().padStart(4)} │ ${stepInfo.avgHeight.toFixed(2).padStart(9)}m │ ${plot.cumulativeHarvest.toString().padStart(10)} │ ${plot.cumulativeValue.toFixed(0).padStart(12)} │ ${plot.cumulativeCO2.toFixed(0).padStart(12)} │ ${(plot.cumulativeCostJoules / 1000000).toFixed(0).padStart(10)} │ ${(plot.cumulativeCostJoules / 1000000 * plot.USD_PER_MEGAJOULE).toFixed(0).padStart(12)} │ ${yearlyHarvest.toString().padStart(12)} │`)
+				
+				nextYearMark += 365
+			}
+		} else {
+			break
 		}
 	}
 	

@@ -1,3 +1,25 @@
+// Deep clone function that handles functions
+function deepClone(obj) {
+	if (obj === null || typeof obj !== 'object') return obj;
+	if (obj instanceof Date) return new Date(obj.getTime());
+	if (obj instanceof Array) return obj.map(item => deepClone(item));
+	
+	const cloned = {};
+	for (const key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			cloned[key] = deepClone(obj[key]);
+		}
+	}
+	
+	// Copy functions and prototype methods
+	const prototype = Object.getPrototypeOf(obj);
+	if (prototype !== Object.prototype) {
+		Object.setPrototypeOf(cloned, prototype);
+	}
+	
+	return cloned;
+}
+
 // Basic prototypical entities share these properties
 
 const prototypical_entity = {
@@ -40,7 +62,7 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 	const max = this.CULM_MAX
 	let counter = 1
 	for(let i = 0; i < max; i++) {
-		const culm = structuredClone(prototypical_dendrocalamus_asper_culm)
+		const culm = deepClone(prototypical_dendrocalamus_asper_culm)
 		culm.parent = clump.id
 		culm.id = clump.id + "/" + counter
 		culm.createdat = performance.now()
@@ -85,7 +107,7 @@ prototypical_plot.onreset = function({width,depth}) {
 	let counter = 1
 	for(let x = 0; x != width;x+=ref.CLUMP_GAP_PER_AXIS) {
 		for(let z=0; z != depth;z+=ref.CLUMP_GAP_PER_AXIS) {
-			const clump = structuredClone(ref)
+			const clump = deepClone(ref)
 			clump.parent = plot.id
 			clump.id = plot.id + "/" + counter
 			clump.xyz = [x, 0, z]
@@ -124,7 +146,7 @@ prototypical_dendrocalamus_asper_clump.onharvest = function() {
 		clump.children.splice(index, 1)
 		
 		// Add new culm to replace harvested one
-		const newCulm = structuredClone(prototypical_dendrocalamus_asper_culm)
+		const newCulm = deepClone(prototypical_dendrocalamus_asper_culm)
 		newCulm.parent = clump.id
 		newCulm.id = clump.id + "/" + Date.now() + Math.random()
 		newCulm.createdat = performance.now()
@@ -214,7 +236,7 @@ function runSimulation(plot, years = 10, daysPerStep = 30) {
 }
 
 function create_test_plot() {
-	const plot = structuredClone(prototypical_plot)
+	const plot = deepClone(prototypical_plot)
 	plot.id = 1
 	plot.onreset({width:100,depth:100})
 	return plot

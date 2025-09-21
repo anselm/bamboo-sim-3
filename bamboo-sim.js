@@ -1,21 +1,4 @@
-
-/*
-
-I'm thinking of a way to represent or simulate an agent based model of a field of bamboo. Later there would be more kinds of agents. Some of my goals are:
-
-1) A succint ecs patterned, prototype based model of each agent, where I clone a prototype, and then run systems over clusters of related instances to do work.
-
-2) A reasonable model of a dendrocalamus asper, or giant bamboo, which grows in clumps that are about 6 meters apart, and where each clump has up to 40 individual poles (or culm as they are called). Growth of poles is on an s-curve, rapidly at first and slowing down towards old age. Harvesting of a clump starts at about 20% of that clump at about the 5 year mark. And and each pole is worth about $12, and there is some estimate of co2 sequestration per pole, more mature clumps can sequester 2.24 kg per pole. There are usually 150 clumps per square hectare (a hectare is 10000 square meters)
-
-3) Utter code clarity, just really easy for me as a programmer to understand
-
-Here are my thoughts so far:
-
-*/
-
-//
-// basic prototypical entities share these properties
-//
+// Basic prototypical entities share these properties
 
 const prototypical_entity = {
 	id: 0,
@@ -27,9 +10,7 @@ const prototypical_entity = {
 	createdat: null,	
 }
 
-//
-// a dendrocalamus asper culm prototype - clone to use
-//
+// A dendrocalamus asper culm prototype - clone to use
 
 const prototypical_dendrocalamus_asper_culm = {
 
@@ -39,9 +20,7 @@ const prototypical_dendrocalamus_asper_culm = {
 	CO2_KG_PER_CULM: 2.21
 }
 
-//
-// a dendrocalamus asper clump prototype - clone to use
-//
+// A dendrocalamus asper clump prototype - clone to use
 
 const prototypical_dendrocalamus_asper_clump = {
 
@@ -91,9 +70,7 @@ prototypical_dendrocalamus_asper_culm.ontick = function(daysElapsed) {
 	culm.hwd[2] = culm.hwd[1] // depth same as width (circular)
 }
 
-//
-// a prototypical plot
-//
+// A prototypical plot
 
 const prototypical_plot = {
 	...prototypical_entity,
@@ -262,32 +239,6 @@ function main() {
 	console.log(`  Total economic yield: $${stats.economicYield[stats.economicYield.length - 1].toFixed(2)}`)
 	console.log(`  Total CO2 sequestered: ${stats.co2Sequestered[stats.co2Sequestered.length - 1].toFixed(2)}kg`)
 }
-
-/*
-
-accomplishments so far:
-
-[done] so far we have a rough cut of a way to represent culms, clumps and plots
-[done] we also initialize this
-
-things we have to do still:
-
-- we want s-curve growth of culm
-
-- we need a concept of harvesting
-
-- i want to run this simulation over a 10 year period; at some low resolution
-
-- i want to log statistics at each step, the total growth, harvest, economic yield, co2
-
-things to do later on:
-
-- invent an idea of elevation that affects growth rate
-- invent an idea of slope and slope facing that affects growth rate
-- invent an idea of pests (just a field effect) that affects growth rate
-- invent another organism, such as coffee, and try intercropping
-
-*/
 
 // Run the simulation when the file is loaded
 main()

@@ -102,7 +102,7 @@ const prototypical_plot = {
 	...prototypical_entity,
 }
 
-prototypical_plot.onreset = ({width,depth}) => {
+prototypical_plot.onreset = function({width,depth}) {
 	const plot = this
 	plot.children = []
 	plot.createdat = plot.updatedat = performance.now()

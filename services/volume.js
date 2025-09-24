@@ -189,11 +189,30 @@ export const volume_service = {
 					break;
 			}
 			
-			const material = new THREE.MeshPhongMaterial({
-				color: vol.color || 0x00ff00,
-				opacity: vol.opacity || 1.0,
-				transparent: vol.opacity < 1.0
-			});
+			// Create material based on type
+			let material;
+			if (vol.material === 'glass') {
+				// Glass-like material for semi-transparent objects
+				material = new THREE.MeshPhysicalMaterial({
+					color: vol.color || 0x00ff00,
+					opacity: vol.opacity || 0.3,
+					transparent: true,
+					roughness: 0.1,
+					metalness: 0.1,
+					transmission: 0.9,
+					thickness: 0.5,
+					envMapIntensity: 1,
+					clearcoat: 1,
+					clearcoatRoughness: 0
+				});
+			} else {
+				// Standard material
+				material = new THREE.MeshPhongMaterial({
+					color: vol.color || 0x00ff00,
+					opacity: vol.opacity || 1.0,
+					transparent: vol.opacity < 1.0
+				});
+			}
 			
 			mesh = new THREE.Mesh(geometry, material);
 			mesh.castShadow = true;
@@ -219,8 +238,14 @@ export const volume_service = {
 			// DEM terrain is already positioned correctly
 			mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 		} else {
-			// For cylinders and spheres, position at ground level + half height
-			if (vol.shape === 'cylinder' || vol.shape === 'sphere') {
+			// For cylinders, position at ground level + half height
+			if (vol.shape === 'cylinder') {
+				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+			} else if (vol.shape === 'sphere' && entity.kind === 'clump') {
+				// For clump spheres, position at ground level + radius
+				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0], vol.xyz[2]);
+			} else if (vol.shape === 'sphere') {
+				// For other spheres (coffee), position at ground level + radius
 				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
 			} else {
 				mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
@@ -254,8 +279,14 @@ export const volume_service = {
 				// DEM terrain is already positioned correctly
 				mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 			} else {
-				// For cylinders and spheres, position at ground level + half height
-				if (vol.shape === 'cylinder' || vol.shape === 'sphere') {
+				// For cylinders, position at ground level + half height
+				if (vol.shape === 'cylinder') {
+					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+				} else if (vol.shape === 'sphere' && entity.kind === 'clump') {
+					// For clump spheres, position at ground level + radius
+					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0], vol.xyz[2]);
+				} else if (vol.shape === 'sphere') {
+					// For other spheres (coffee), position at ground level + radius
 					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
 				} else {
 					mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);

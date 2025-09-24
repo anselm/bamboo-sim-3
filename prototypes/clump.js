@@ -31,10 +31,11 @@ export const prototypical_dendrocalamus_asper_clump = {
 	}
 }
 
-prototypical_dendrocalamus_asper_clump.onreset = function() {
+prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 	const clump = this
 	clump.children = []
 	clump.createdat = this.updatedat = performance.now()
+	clump.plot = plot // Store reference to plot for DEM access
 	
 	// Initialize statistics
 	clump.clump.totalHarvested = 0
@@ -59,11 +60,18 @@ prototypical_dendrocalamus_asper_clump.onreset = function() {
 		// Use polar coordinates for natural circular distribution
 		const angle = Math.random() * 2 * Math.PI
 		const distance = Math.random() * clumpRadius * 0.8 // Keep within 80% of radius
-		culm.volume.xyz = [
-			clump.volume.xyz[0] + Math.cos(angle) * distance,
-			0,
-			clump.volume.xyz[2] + Math.sin(angle) * distance
-		]
+		
+		// Calculate culm position
+		const culmX = clump.volume.xyz[0] + Math.cos(angle) * distance
+		const culmZ = clump.volume.xyz[2] + Math.sin(angle) * distance
+		
+		// Get elevation for this culm position if DEM data is available
+		let culmY = clump.volume.xyz[1] // Default to clump's elevation
+		if (clump.plot && clump.plot.demData && clump.plot.demData.getElevationAtSceneCoords) {
+			culmY = clump.plot.demData.getElevationAtSceneCoords(culmX, culmZ)
+		}
+		
+		culm.volume.xyz = [culmX, culmY, culmZ]
 		
 		culm.volume.hwd = [0, 0, 0] // height, width, depth - will grow over time
 		culm.culm.age = 0 // age in days

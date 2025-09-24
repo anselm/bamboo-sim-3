@@ -28,10 +28,11 @@ export const prototypical_coffee_row = {
 	}
 }
 
-prototypical_coffee_row.onreset = function() {
+prototypical_coffee_row.onreset = function(plot) {
 	const row = this
 	row.children = []
 	row.createdat = row.updatedat = performance.now()
+	row.plot = plot // Store reference to plot for DEM access
 	
 	// Initialize statistics
 	row.coffeerow.totalHarvested = 0
@@ -53,7 +54,13 @@ prototypical_coffee_row.onreset = function() {
 		// Skip plants that would be outside the plot
 		if (plantX >= 100) break  // Assuming 100m plot width
 		
-		plant.volume.xyz = [plantX, 0, row.volume.xyz[2]]
+		// Get elevation for this plant position if DEM data is available
+		let plantY = row.volume.xyz[1] // Default to row's elevation
+		if (row.plot && row.plot.demData && row.plot.demData.getElevationAtSceneCoords) {
+			plantY = row.plot.demData.getElevationAtSceneCoords(plantX, row.volume.xyz[2])
+		}
+		
+		plant.volume.xyz = [plantX, plantY, row.volume.xyz[2]]
 		
 		plant.coffee.age = 0
 		row.coffeerow.totalCostJoules += plant.coffee.JOULES_PER_PLANTING

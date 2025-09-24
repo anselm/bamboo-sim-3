@@ -40,7 +40,13 @@ export function sys(blob) {
 	// onreset -> if your object has an onreset() method then call it now
 	if(blob.onreset) {
 		console.log("sys: resetting ",blob.id)
-		blob.onreset()
+		// Pass plot reference if this is a child entity
+		if(blob.parent && entities.length > 0) {
+			const plot = entities.find(e => e.id === blob.parent.split('/')[0])
+			blob.onreset(plot)
+		} else {
+			blob.onreset()
+		}
 	}
 
 	// Register entity if it has onstep method

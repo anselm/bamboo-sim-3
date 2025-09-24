@@ -90,8 +90,16 @@ prototypical_plot.onreset = function() {
 			const clump = deepClone(ref)
 			clump.parent = plot.id
 			clump.id = plot.id + "/" + counter
-			clump.volume.xyz = [x, 0, z]
+			
+			// Get elevation from DEM if available
+			let elevation = 0
+			if (plot.demData && plot.demData.getElevationAtSceneCoords) {
+				elevation = plot.demData.getElevationAtSceneCoords(x, z)
+			}
+			
+			clump.volume.xyz = [x, elevation, z]
 			plot.children.push(clump)
+			clump.plot = plot // Pass plot reference for DEM access
 			sys(clump)
 			// Register all culms with sys
 			clump.children.forEach(culm => sys(culm))
@@ -131,8 +139,16 @@ prototypical_plot.onreset = function() {
 					const coffeeRow = deepClone(prototypical_coffee_row)
 					coffeeRow.parent = plot.id
 					coffeeRow.id = plot.id + "/coffee/" + coffeeCounter
-					coffeeRow.volume.xyz = [x, 0, z]
+					
+					// Get elevation from DEM if available
+					let elevation = 0
+					if (plot.demData && plot.demData.getElevationAtSceneCoords) {
+						elevation = plot.demData.getElevationAtSceneCoords(x, z)
+					}
+					
+					coffeeRow.volume.xyz = [x, elevation, z]
 					plot.children.push(coffeeRow)
+					coffeeRow.plot = plot // Pass plot reference for DEM access
 					sys(coffeeRow)
 					coffeeCounter++
 				}

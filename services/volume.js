@@ -199,7 +199,12 @@ export const volume_service = {
 			// DEM terrain is already positioned correctly
 			mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 		} else {
-			mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+			// For cylinders and spheres, position at ground level + half height
+			if (vol.shape === 'cylinder' || vol.shape === 'sphere') {
+				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+			} else {
+				mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
+			}
 		}
 		
 		// For cylinders, update the geometry if height changed
@@ -229,7 +234,12 @@ export const volume_service = {
 				// DEM terrain is already positioned correctly
 				mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 			} else {
-				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+				// For cylinders and spheres, position at ground level + half height
+				if (vol.shape === 'cylinder' || vol.shape === 'sphere') {
+					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
+				} else {
+					mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
+				}
 			}
 			
 			// For cylinders, update geometry if height changed

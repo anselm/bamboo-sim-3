@@ -54,12 +54,6 @@ prototypical_coffee_row.onreset = function(plot) {
 		// Skip plants that would be outside the plot
 		if (plantX >= 100) break  // Assuming 100m plot width
 		
-		// Get elevation for this plant position if DEM data is available
-		let plantY = row.volume.xyz[1] // Default to row's elevation
-		if (row.plot && row.plot.demData && row.plot.demData.getElevationAtSceneCoords) {
-			plantY = row.plot.demData.getElevationAtSceneCoords(plantX, row.volume.xyz[2])
-		}
-		
 		// Add small random offset to plant position
 		const xOffset = (Math.random() - 0.5) * 0.4; // -0.2 to 0.2 meter
 		const zOffset = (Math.random() - 0.5) * 0.4; // -0.2 to 0.2 meter

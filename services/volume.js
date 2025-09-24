@@ -122,7 +122,7 @@ export const volume_service = {
 			return; // Don't create a mesh for camera
 		}
 		
-		console.log('Volume service: Processing entity', entity.id, 'with shape', entity.volume.shape);
+		console.log('Volume service: Processing entity', entity.id, 'kind:', entity.kind, 'shape:', entity.volume.shape, 'color:', entity.volume.color?.toString(16));
 		
 		// Store reference to entity
 		this.entities.set(entity.id, entity);
@@ -150,37 +150,36 @@ export const volume_service = {
 						16, 16              // segments
 					);
 					break;
-				case 'dem':
-					// Create terrain geometry from DEM data
-					if (vol.demData) {
-						const dem = vol.demData;
-						geometry = new THREE.PlaneGeometry(
-							vol.hwd[1], // width
-							vol.hwd[2], // depth
-							dem.width - 1, // width segments
-							dem.height - 1  // height segments
-						);
-						
-						// Modify vertices based on elevation data
-						const vertices = geometry.attributes.position.array;
-						for (let i = 0; i < dem.elevations.length; i++) {
-							const elev = dem.elevations[i];
-							const normalizedElev = (elev - dem.minElev) / (dem.maxElev - dem.minElev);
-							vertices[i * 3 + 2] = normalizedElev * vol.hwd[0]; // Set Z (height)
-						}
-						
-						// Update normals for proper lighting
-						geometry.computeVertexNormals();
-						
-						// Rotate to be horizontal (PlaneGeometry starts vertical)
-						geometry.rotateX(-Math.PI / 2);
-					} else {
-						// Fallback if no DEM data
-						geometry = new THREE.BoxGeometry(vol.hwd[1], 0.1, vol.hwd[2]);
-					}
-					break;
+               case 'dem':                                                                                                                                                                       
+                    // Create terrain geometry from DEM data                                                                                                                                      
+                    if (vol.demData) {                                                                                                                                                            
+                        const dem = vol.demData;                                                                                                                                                  
+                        geometry = new THREE.PlaneGeometry(                                                                                                                                       
+                            vol.hwd[1], // width                                                                                                                                                  
+                            vol.hwd[2], // depth                                                                                                                                                  
+                            dem.width - 1, // width segments                                                                                                                                      
+                            dem.height - 1  // height segments                                                                                                                                    
+                        );                                                                                                                                                                        
+                                                                                                                                                                                                  
+                        // Modify vertices based on elevation data                                                                                                                                
+                        const vertices = geometry.attributes.position.array;                                                                                                                      
+                        for (let i = 0; i < dem.elevations.length; i++) {                                                                                                                         
+                            const elev = dem.elevations[i];                                                                                                                                       
+                            const normalizedElev = (elev - dem.minElev) / (dem.maxElev - dem.minElev);                                                                                            
+                            vertices[i * 3 + 2] = normalizedElev * vol.hwd[0]; // Set Z (height)                                                                                                  
+                        }                                                                                                                                                                         
+                                                                                                                                                                                                  
+                        // Update normals for proper lighting                                                                                                                                     
+                        geometry.computeVertexNormals();                                                                                                                                          
+                                                                                                                                                                                                  
+                        // Rotate to be horizontal (PlaneGeometry starts vertical)                                                                                                                
+                        geometry.rotateX(-Math.PI / 2);                                                                                                                                           
+                    } else {                                                                                                                                                                      
+                        // Fallback if no DEM data                                                                                                                                                
+                        geometry = new THREE.BoxGeometry(vol.hwd[1], 0.1, vol.hwd[2]);                                                                                                            
+                    }                                                                                                                                                                             
+                    break;               
 				case 'box':
-					return;
 				default:
 					geometry = new THREE.BoxGeometry(
 						vol.hwd[1] || 1,    // width (x)
@@ -206,16 +205,15 @@ export const volume_service = {
 					clearcoat: 1,
 					clearcoatRoughness: 0
 				});
-			} else if (vol.shape === 'dem' && vol.demData && vol.demData.satelliteData) {
-				// DEM with satellite texture
-				const texture = new THREE.CanvasTexture(vol.demData.satelliteData.canvas);
-				texture.needsUpdate = true;
-				material = new THREE.MeshPhongMaterial({
-					map: texture,
-					side: THREE.DoubleSide
-				});
-			} else {
-				// Standard material
+          } else if (vol.shape === 'dem' && vol.demData && vol.demData.satelliteData) {                                                                                                         
+                // DEM with satellite texture                                                                                                                                                     
+                const texture = new THREE.CanvasTexture(vol.demData.satelliteData.canvas);                                                                                                        
+                texture.needsUpdate = true;                                                                                                                                                       
+                material = new THREE.MeshPhongMaterial({                                                                                                                                          
+                    map: texture,                                                                                                                                                                 
+                    side: THREE.DoubleSide                                                                                                                                                        
+                });                                                                                                                                                                               
+            } else {      				// Standard material
 				material = new THREE.MeshPhongMaterial({
 					color: vol.color || 0x00ff00,
 					opacity: vol.opacity || 1.0,

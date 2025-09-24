@@ -11,6 +11,11 @@ export const dem_service = {
 		// Format: https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=YOUR_TOKEN
 		// Alternative free option: Terrarium tiles from AWS
 		tileUrl: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+		// Satellite imagery sources
+		satelliteUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+		// Alternative satellite sources:
+		// Sentinel-2 cloudless: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg'
+		// USGS: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}'
 		tileSize: 256,
 		maxZoom: 15,
 		encoding: 'terrarium' // 'terrarium' or 'mapbox'
@@ -215,6 +220,98 @@ export const dem_service = {
 		};
 	},
 	
+	// Fetch satellite imagery for a region
+	getSatelliteImagery: async function(bounds, zoom = null) {
+		// Auto-determine zoom if not specified (same logic as DEM)
+		if (zoom === null) {
+			const latRange = bounds.north - bounds.south;
+			const lonRange = bounds.east - bounds.west;
+			const maxRange = Math.max(latRange, lonRange);
+			
+			if (maxRange > 10) zoom = 6;
+			else if (maxRange > 5) zoom = 8;
+			else if (maxRange > 1) zoom = 10;
+			else if (maxRange > 0.5) zoom = 12;
+			else if (maxRange > 0.1) zoom = 13;
+			else zoom = 14;
+			
+			zoom = Math.min(zoom, this.config.maxZoom);
+		}
+		
+		// Get tile bounds
+		const nwTile = this.latLonToTile(bounds.north, bounds.west, zoom);
+		const seTile = this.latLonToTile(bounds.south, bounds.east, zoom);
+		
+		const promises = [];
+		const tilePositions = [];
+		
+		// Fetch all required tiles
+		for (let x = nwTile.x; x <= seTile.x; x++) {
+			for (let y = nwTile.y; y <= seTile.y; y++) {
+				promises.push(this.fetchSatelliteTile(x, y, zoom));
+				tilePositions.push({x, y});
+			}
+		}
+		
+		const tileResults = await Promise.all(promises);
+		
+		// Create canvas to combine tiles
+		const tilesX = seTile.x - nwTile.x + 1;
+		const tilesY = seTile.y - nwTile.y + 1;
+		const canvas = document.createElement('canvas');
+		canvas.width = tilesX * this.config.tileSize;
+		canvas.height = tilesY * this.config.tileSize;
+		const ctx = canvas.getContext('2d');
+		
+		// Draw each tile to the canvas
+		for (let i = 0; i < tileResults.length; i++) {
+			const tile = tileResults[i];
+			if (tile) {
+				const pos = tilePositions[i];
+				const x = (pos.x - nwTile.x) * this.config.tileSize;
+				const y = (pos.y - nwTile.y) * this.config.tileSize;
+				ctx.drawImage(tile, x, y);
+			}
+		}
+		
+		// Calculate actual bounds
+		const actualBounds = {
+			north: this.tileToLatLon(nwTile.x, nwTile.y, zoom).lat,
+			south: this.tileToLatLon(seTile.x, seTile.y + 1, zoom).lat,
+			west: this.tileToLatLon(nwTile.x, nwTile.y + 1, zoom).lon,
+			east: this.tileToLatLon(seTile.x + 1, seTile.y, zoom).lon
+		};
+		
+		return {
+			canvas,
+			imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
+			width: canvas.width,
+			height: canvas.height,
+			bounds: actualBounds,
+			zoom
+		};
+	},
+	
+	// Fetch a single satellite tile
+	fetchSatelliteTile: async function(x, y, z) {
+		const url = this.config.satelliteUrl
+			.replace('{z}', z)
+			.replace('{x}', x)
+			.replace('{y}', y);
+		
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			
+			const blob = await response.blob();
+			const bitmap = await createImageBitmap(blob);
+			return bitmap;
+		} catch (error) {
+			console.error(`Failed to fetch satellite tile ${z}/${x}/${y}:`, error);
+			return null;
+		}
+	},
+	
 	// Clear cache
 	clearCache: function() {
 		this.tileCache.clear();
@@ -255,7 +352,8 @@ export const dem_service = {
 			position = [50, 0, 50],
 			sceneSize = [100, 100],  // width, depth in scene units
 			heightScale = 0.01,
-			color = 0x8B4513  // Saddle brown
+			color = 0x8B4513,  // Saddle brown
+			includeSatellite = false  // Whether to fetch satellite imagery
 		} = params;
 		
 		try {
@@ -274,6 +372,18 @@ export const dem_service = {
 			}
 			
 			console.log(`DEM Service: Elevation range: ${minElev}m to ${maxElev}m`);
+			
+			// Fetch satellite imagery if requested
+			let satelliteData = null;
+			if (includeSatellite) {
+				console.log('DEM Service: Fetching satellite imagery...');
+				try {
+					satelliteData = await this.getSatelliteImagery(bounds, zoom);
+					console.log('DEM Service: Satellite imagery loaded - width:', satelliteData.width, 'height:', satelliteData.height);
+				} catch (error) {
+					console.error('DEM Service: Failed to load satellite imagery:', error);
+				}
+			}
 			
 			// Create volume object for sys()
 			const demVolume = {
@@ -333,7 +443,9 @@ export const dem_service = {
 							
 							// Return scaled elevation for scene
 							return (elevation - this.minElev) * this.heightScale;
-						}
+						},
+						// Satellite imagery data if available
+						satelliteData: satelliteData
 					}
 				}
 			};

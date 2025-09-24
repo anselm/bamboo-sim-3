@@ -180,6 +180,7 @@ export const volume_service = {
 					}
 					break;
 				case 'box':
+					return;
 				default:
 					geometry = new THREE.BoxGeometry(
 						vol.hwd[1] || 1,    // width (x)
@@ -204,6 +205,14 @@ export const volume_service = {
 					envMapIntensity: 1,
 					clearcoat: 1,
 					clearcoatRoughness: 0
+				});
+			} else if (vol.shape === 'dem' && vol.demData && vol.demData.satelliteData) {
+				// DEM with satellite texture
+				const texture = new THREE.CanvasTexture(vol.demData.satelliteData.canvas);
+				texture.needsUpdate = true;
+				material = new THREE.MeshPhongMaterial({
+					map: texture,
+					side: THREE.DoubleSide
 				});
 			} else {
 				// Standard material

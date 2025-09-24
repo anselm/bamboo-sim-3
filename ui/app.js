@@ -218,7 +218,8 @@ export class BambooSimApp {
                 },
                 position: [50, 0, 50],
                 sceneSize: [100, 100],  // Match plot size
-                heightScale: 0.01
+                heightScale: 0.01,
+                includeSatellite: true  // Enable satellite imagery
             });
             
             if (this.demVolume) {

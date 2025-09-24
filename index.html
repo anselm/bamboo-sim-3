@@ -100,6 +100,9 @@
                         <button data-tab="stats" class="px-6 py-3 hover:bg-gray-700 transition border-b-2 border-transparent">
                             Statistics
                         </button>
+                        <button data-tab="config" class="px-6 py-3 hover:bg-gray-700 transition border-b-2 border-transparent">
+                            Configuration
+                        </button>
                     </div>
                 </div>
 
@@ -111,6 +114,9 @@
                     <div data-content="stats" class="absolute inset-0 hidden p-4 overflow-y-auto">
                         <canvas id="statsCanvas" class="w-full bg-gray-900 rounded" style="height: 400px;"></canvas>
                         <!-- Stats table will be dynamically added here -->
+                    </div>
+                    <div data-content="config" class="absolute inset-0 hidden p-4 overflow-y-auto">
+                        <div id="configPanel"></div>
                     </div>
                 </div>
             </main>

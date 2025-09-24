@@ -36,3 +36,35 @@ canvas {
 #threejs-container canvas {
     display: block;
 }
+
+/* Configuration panel styles */
+.config-panel {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.config-panel input[type="range"] {
+    @apply bg-gray-700 rounded-lg appearance-none cursor-pointer h-2;
+}
+
+.config-panel input[type="range"]::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-green-500 rounded-full cursor-pointer;
+}
+
+.config-panel input[type="range"]::-moz-range-thumb {
+    @apply w-4 h-4 bg-green-500 rounded-full cursor-pointer border-0;
+}
+
+.config-panel input[type="checkbox"] {
+    @apply w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500;
+}
+
+.config-panel select,
+.config-panel input[type="number"] {
+    @apply text-white;
+}
+
+.config-panel select:focus,
+.config-panel input[type="number"]:focus {
+    @apply outline-none ring-2 ring-green-500;
+}

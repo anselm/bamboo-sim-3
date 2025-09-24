@@ -97,7 +97,19 @@ prototypical_plot.onreset = function() {
 				elevation = plot.demData.getElevationAtSceneCoords(x, z)
 			}
 			
-			clump.volume.xyz = [x, elevation, z]
+			// Add small random offset to clump position (up to 1m in any direction)
+			const xOffset = (Math.random() - 0.5) * 2; // -1 to 1 meter
+			const zOffset = (Math.random() - 0.5) * 2; // -1 to 1 meter
+			const finalX = x + xOffset;
+			const finalZ = z + zOffset;
+			
+			// Get elevation from DEM if available
+			let elevation = 0
+			if (plot.demData && plot.demData.getElevationAtSceneCoords) {
+				elevation = plot.demData.getElevationAtSceneCoords(finalX, finalZ)
+			}
+			
+			clump.volume.xyz = [finalX, elevation, finalZ]
 			plot.children.push(clump)
 			clump.plot = plot // Pass plot reference for DEM access
 			sys(clump)
@@ -143,7 +155,19 @@ prototypical_plot.onreset = function() {
 					elevation = plot.demData.getElevationAtSceneCoords(x, z)
 				}
 				
-				coffeeRow.volume.xyz = [x, elevation, z]
+				// Add small random offset to coffee row position (up to 0.5m in any direction)
+				const xOffset = (Math.random() - 0.5) * 1; // -0.5 to 0.5 meter
+				const zOffset = (Math.random() - 0.5) * 1; // -0.5 to 0.5 meter
+				const finalX = x + xOffset;
+				const finalZ = z + zOffset;
+				
+				// Get elevation from DEM if available
+				let elevation = 0
+				if (plot.demData && plot.demData.getElevationAtSceneCoords) {
+					elevation = plot.demData.getElevationAtSceneCoords(finalX, finalZ)
+				}
+				
+				coffeeRow.volume.xyz = [finalX, elevation, finalZ]
 				plot.children.push(coffeeRow)
 				coffeeRow.plot = plot // Pass plot reference for DEM access
 				sys(coffeeRow)

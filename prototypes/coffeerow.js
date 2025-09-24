@@ -60,7 +60,19 @@ prototypical_coffee_row.onreset = function(plot) {
 			plantY = row.plot.demData.getElevationAtSceneCoords(plantX, row.volume.xyz[2])
 		}
 		
-		plant.volume.xyz = [plantX, plantY, row.volume.xyz[2]]
+		// Add small random offset to plant position
+		const xOffset = (Math.random() - 0.5) * 0.4; // -0.2 to 0.2 meter
+		const zOffset = (Math.random() - 0.5) * 0.4; // -0.2 to 0.2 meter
+		const finalPlantX = plantX + xOffset;
+		const finalPlantZ = row.volume.xyz[2] + zOffset;
+		
+		// Get elevation for this plant position if DEM data is available
+		let plantY = row.volume.xyz[1] // Default to row's elevation
+		if (row.plot && row.plot.demData && row.plot.demData.getElevationAtSceneCoords) {
+			plantY = row.plot.demData.getElevationAtSceneCoords(finalPlantX, finalPlantZ)
+		}
+		
+		plant.volume.xyz = [finalPlantX, plantY, finalPlantZ]
 		
 		plant.coffee.age = 0
 		row.coffeerow.totalCostJoules += plant.coffee.JOULES_PER_PLANTING

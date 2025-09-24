@@ -73,6 +73,19 @@ prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 		
 		culm.volume.xyz = [culmX, culmY, culmZ]
 		
+		// Calculate outward tilt from clump center
+		// Tilt increases with distance from center, up to about 10 degrees
+		const tiltAngle = (distance / clumpRadius) * 0.174533; // 10 degrees in radians
+		const tiltDirection = angle; // Same as position angle
+		
+		// Set rotation (yaw, pitch, roll)
+		// Pitch tilts the culm outward in the direction it's positioned
+		culm.volume.ypr = [
+			tiltDirection, // Yaw: direction of tilt
+			tiltAngle,     // Pitch: amount of tilt
+			0              // Roll: no roll
+		];
+		
 		culm.volume.hwd = [0, 0, 0] // height, width, depth - will grow over time
 		culm.culm.age = 0 // age in days
 		counter++

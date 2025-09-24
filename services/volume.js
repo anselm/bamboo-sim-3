@@ -186,6 +186,13 @@ export const volume_service = {
 			mesh.castShadow = true;
 			mesh.receiveShadow = true;
 			
+			// Apply rotation if specified
+			if (vol.ypr) {
+				mesh.rotation.y = vol.ypr[0]; // Yaw
+				mesh.rotation.x = vol.ypr[1]; // Pitch
+				mesh.rotation.z = vol.ypr[2]; // Roll
+			}
+			
 			this.meshes.set(entity.id, mesh);
 			this.scene.add(mesh);
 		}
@@ -260,6 +267,13 @@ export const volume_service = {
 					vol.hwd[1] || 0.5,
 					16, 16
 				);
+			}
+			
+			// Update rotation if specified
+			if (vol.ypr) {
+				mesh.rotation.y = vol.ypr[0]; // Yaw
+				mesh.rotation.x = vol.ypr[1]; // Pitch
+				mesh.rotation.z = vol.ypr[2]; // Roll
 			}
 		});
 	},

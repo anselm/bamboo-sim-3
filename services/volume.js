@@ -64,6 +64,10 @@ export const volume_service = {
 		directionalLight.shadow.camera.bottom = -100;
 		this.scene.add(directionalLight);
 		
+		// Add axes helper (red = X, green = Y, blue = Z)
+		const axesHelper = new THREE.AxesHelper(50); // 50 units long
+		this.scene.add(axesHelper);
+		
 		// Handle window resize
 		window.addEventListener('resize', () => {
 			const container = document.getElementById('threejs-container');

@@ -22,7 +22,7 @@ export const volume_service = {
 		
 		// Create camera with wider field of view
 		this.camera = new THREE.PerspectiveCamera(
-			90,  // Wider FOV (was 75)
+			45,  // Wider FOV (was 75)
 			window.innerWidth / window.innerHeight, 
 			0.1, 
 			1000
@@ -122,6 +122,12 @@ export const volume_service = {
 			return; // Don't create a mesh for camera
 		}
 		
+		// Skip entities without a shape
+		if (!entity.volume.shape) {
+			console.log('Volume service: Skipping entity', entity.id, 'with no shape defined');
+			return;
+		}
+		
 		console.log('Volume service: Processing entity', entity.id, 'kind:', entity.kind, 'shape:', entity.volume.shape, 'color:', entity.volume.color?.toString(16));
 		
 		// Store reference to entity
@@ -180,13 +186,22 @@ export const volume_service = {
                     }                                                                                                                                                                             
                     break;               
 				case 'box':
-				default:
 					geometry = new THREE.BoxGeometry(
 						vol.hwd[1] || 1,    // width (x)
 						vol.hwd[0] || 1,    // height (y)
 						vol.hwd[2] || 1     // depth (z)
 					);
 					break;
+				default:
+					// No default geometry - skip unknown shapes
+					console.warn('Volume service: Unknown shape type:', vol.shape);
+					return;
+			}
+			
+			// Skip if geometry creation failed
+			if (!geometry) {
+				console.warn('Volume service: Failed to create geometry for entity', entity.id);
+				return;
 			}
 			
 			// Create material based on type

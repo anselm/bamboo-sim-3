@@ -295,7 +295,45 @@ export const dem_service = {
 						minElev: minElev,
 						maxElev: maxElev,
 						bounds: demData.bounds,
-						heightScale: heightScale
+						heightScale: heightScale,
+						sceneSize: sceneSize,
+						position: position,
+						// Helper method to get elevation at scene coordinates
+						getElevationAtSceneCoords: function(sceneX, sceneZ) {
+							// Convert scene coordinates to normalized coordinates (0-1)
+							const normX = (sceneX - position[0] + sceneSize[0]/2) / sceneSize[0];
+							const normZ = (sceneZ - position[2] + sceneSize[1]/2) / sceneSize[1];
+							
+							// Check bounds
+							if (normX < 0 || normX > 1 || normZ < 0 || normZ > 1) {
+								return 0; // Default elevation if outside bounds
+							}
+							
+							// Convert to DEM pixel coordinates
+							const pixelX = normX * (this.width - 1);
+							const pixelZ = normZ * (this.height - 1);
+							
+							// Bilinear interpolation
+							const x0 = Math.floor(pixelX);
+							const x1 = Math.min(x0 + 1, this.width - 1);
+							const z0 = Math.floor(pixelZ);
+							const z1 = Math.min(z0 + 1, this.height - 1);
+							
+							const fx = pixelX - x0;
+							const fz = pixelZ - z0;
+							
+							const v00 = this.elevations[z0 * this.width + x0];
+							const v10 = this.elevations[z0 * this.width + x1];
+							const v01 = this.elevations[z1 * this.width + x0];
+							const v11 = this.elevations[z1 * this.width + x1];
+							
+							const v0 = v00 * (1 - fx) + v10 * fx;
+							const v1 = v01 * (1 - fx) + v11 * fx;
+							const elevation = v0 * (1 - fz) + v1 * fz;
+							
+							// Return scaled elevation for scene
+							return (elevation - this.minElev) * this.heightScale;
+						}
 					}
 				}
 			};

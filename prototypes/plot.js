@@ -32,6 +32,7 @@ export const prototypical_plot = {
 		cumulativeValue: 0,
 		cumulativeCO2: 0,
 		cumulativeCostJoules: 0,
+		cumulativeCoffeeKg: 0,
 		
 		// Time series data
 		days: [],
@@ -39,7 +40,9 @@ export const prototypical_plot = {
 		totalHarvest: [],
 		economicYield: [],
 		co2Sequestered: [],
-		energyCostJoules: []
+		energyCostJoules: [],
+		coffeeHeight: [],
+		coffeeHarvested: []
 	},
 	
 	// Rendering information
@@ -66,6 +69,7 @@ prototypical_plot.onreset = function() {
 		cumulativeValue: 0,
 		cumulativeCO2: 0,
 		cumulativeCostJoules: 0,
+		cumulativeCoffeeKg: 0,
 		
 		// Time series data
 		days: [],
@@ -73,7 +77,9 @@ prototypical_plot.onreset = function() {
 		totalHarvest: [],
 		economicYield: [],
 		co2Sequestered: [],
-		energyCostJoules: []
+		energyCostJoules: [],
+		coffeeHeight: [],
+		coffeeHarvested: []
 	}
 	const ref = prototypical_dendrocalamus_asper_clump
 	let counter = 1
@@ -226,6 +232,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 	plot.stats.cumulativeValue = 0
 	plot.stats.cumulativeCO2 = 0
 	plot.stats.cumulativeCostJoules = 0
+	plot.stats.cumulativeCoffeeKg = 0
 	
 	plot.children.forEach(entity => {
 		if (entity.clump) {
@@ -237,6 +244,7 @@ prototypical_plot.onstep = function(daysElapsed) {
 			plot.stats.cumulativeValue += entity.coffeerow.totalValue
 			plot.stats.cumulativeCO2 += entity.coffeerow.totalCO2
 			plot.stats.cumulativeCostJoules += entity.coffeerow.totalCostJoules
+			plot.stats.cumulativeCoffeeKg += entity.coffeerow.totalHarvested
 		}
 	})
 	
@@ -251,6 +259,8 @@ prototypical_plot.onstep = function(daysElapsed) {
 	plot.stats.economicYield.push(plot.stats.cumulativeValue)
 	plot.stats.co2Sequestered.push(plot.stats.cumulativeCO2)
 	plot.stats.energyCostJoules.push(plot.stats.cumulativeCostJoules)
+	plot.stats.coffeeHeight.push(totalCoffeeHeight / (coffeePlantCount || 1)) // average coffee height
+	plot.stats.coffeeHarvested.push(plot.stats.cumulativeCoffeeKg)
 	
 	// Return step info for logging
 	return {

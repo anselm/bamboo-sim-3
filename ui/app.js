@@ -148,7 +148,7 @@ export class BambooSimApp {
         document.getElementById('value').textContent = '$' + this.plot.stats.cumulativeValue.toFixed(2);
         
         // Update stats canvas if active
-        if (this.statsCanvas && this.activeTab === 'stats') {
+        if (this.statsCanvas && this.activeTab === 'stats' && this.plot) {
             this.statsCanvas.update(this.plot.stats, this.currentDay);
         }
     }

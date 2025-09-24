@@ -32,7 +32,7 @@ export const prototypical_dendrocalamus_asper_clump = {
 		CLUMP_MAX_WIDTH: 12,  // Maximum width of a clump in meters
 		HARVEST_FIRST_DAY: 1825,
 		HARVEST_PERCENT: 20.0,
-		JOULES_PER_CLUMP_PLANTING: 36000000, // 10 kWh = 36 MJ (energy to plant a clump)
+		JOULES_PER_CLUMP_PLANTING: 72000000, // 20 kWh = 72 MJ (energy to plant a clump - includes land prep, planting, initial care)
 		
 		// Accumulated statistics
 		totalHarvested: 0,

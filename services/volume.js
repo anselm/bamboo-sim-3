@@ -50,6 +50,7 @@ export const volume_service = {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.enableDamping = true;
 		this.controls.dampingFactor = 0.05;
+		this.controls.target.set(50, 0, 50); // Default center on plot center
 		
 		// Add lights
 		const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -108,6 +109,18 @@ export const volume_service = {
 		
 		// Only process entities with volume information
 		if (!entity.volume) return;
+		
+		// Handle camera volume shape
+		if (entity.volume.shape === 'camera') {
+			console.log('Volume service: Updating camera target to', entity.volume.xyz);
+			this.controls.target.set(
+				entity.volume.xyz[0],
+				entity.volume.xyz[1],
+				entity.volume.xyz[2]
+			);
+			this.controls.update();
+			return; // Don't create a mesh for camera
+		}
 		
 		console.log('Volume service: Processing entity', entity.id, 'with shape', entity.volume.shape);
 		

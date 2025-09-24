@@ -225,6 +225,15 @@ export class BambooSimApp {
                 console.log('BambooSimApp: Sending DEM volume to sys()');
                 sys(this.demVolume);
                 console.log('BambooSimApp: DEM loaded successfully');
+                
+                // Set camera to center on plot
+                sys({
+                    id: 'camera-target',
+                    volume: {
+                        shape: 'camera',
+                        xyz: [50, 0, 50] // Center of the 100x100 plot
+                    }
+                });
             } else {
                 console.error('BambooSimApp: DEM volume was null');
             }

@@ -63,6 +63,7 @@ prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 	
 	// Distribute culms within the clump area (up to 12m diameter)
 	// Using a circular distribution pattern
+	const culmDistributionRadius = this.clump.CLUMP_MAX_WIDTH / 2  // Full clump radius for culm distribution
 	
 	for(let i = 0; i < max; i++) {
 		const culm = deepClone(prototypical_dendrocalamus_asper_culm)
@@ -73,7 +74,7 @@ prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 		// Position culms randomly within the clump area
 		// Use polar coordinates for natural circular distribution
 		const angle = Math.random() * 2 * Math.PI
-		const distance = Math.random() * clumpRadius * 0.8 // Keep within 80% of radius
+		const distance = Math.random() * culmDistributionRadius * 0.8 // Keep within 80% of full clump radius
 		
 		// Calculate culm position
 		const culmX = clump.volume.xyz[0] + Math.cos(angle) * distance
@@ -89,7 +90,7 @@ prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 		
 		// Calculate outward tilt from clump center
 		// Tilt increases with distance from center, up to about 10 degrees
-		const tiltAngle = (distance / clumpRadius) * 0.174533; // 10 degrees in radians
+		const tiltAngle = (distance / culmDistributionRadius) * 0.174533; // 10 degrees in radians
 		const tiltDirection = angle; // Same as position angle
 		
 		// Set rotation (yaw, pitch, roll)

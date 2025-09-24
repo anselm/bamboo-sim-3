@@ -42,7 +42,10 @@ export function sys(blob) {
 		console.log("sys: resetting ",blob.id)
 		// Pass plot reference if this is a child entity
 		if(blob.parent && entities.length > 0) {
-			const plot = entities.find(e => e.id === blob.parent.split('/')[0])
+			// Convert parent to string if it's a number
+			const parentStr = String(blob.parent);
+			const plotId = parentStr.includes('/') ? parentStr.split('/')[0] : parentStr;
+			const plot = entities.find(e => String(e.id) === plotId);
 			blob.onreset(plot)
 		} else {
 			blob.onreset()

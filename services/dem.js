@@ -1,0 +1,242 @@
+export const dem_service = {
+	id: 'dem-service',
+	kind: 'service',
+	
+	// Cache for downloaded tiles
+	tileCache: new Map(),
+	
+	// Configuration
+	config: {
+		// Using Mapbox Terrain-RGB tiles (free tier available)
+		// Format: https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=YOUR_TOKEN
+		// Alternative free option: Terrarium tiles from AWS
+		tileUrl: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+		tileSize: 256,
+		maxZoom: 15,
+		encoding: 'terrarium' // 'terrarium' or 'mapbox'
+	},
+	
+	// Convert lat/lon to tile coordinates
+	latLonToTile: function(lat, lon, zoom) {
+		const n = Math.pow(2, zoom);
+		const x = Math.floor((lon + 180) / 360 * n);
+		const latRad = lat * Math.PI / 180;
+		const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
+		return { x, y, z: zoom };
+	},
+	
+	// Convert tile coordinates back to lat/lon (for tile bounds)
+	tileToLatLon: function(x, y, z) {
+		const n = Math.pow(2, z);
+		const lon = x / n * 360 - 180;
+		const latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n)));
+		const lat = latRad * 180 / Math.PI;
+		return { lat, lon };
+	},
+	
+	// Decode elevation from pixel values
+	decodeElevation: function(r, g, b) {
+		if (this.config.encoding === 'terrarium') {
+			// Terrarium encoding: elevation = (r * 256 + g + b / 256) - 32768
+			return (r * 256 + g + b / 256) - 32768;
+		} else if (this.config.encoding === 'mapbox') {
+			// Mapbox encoding: elevation = -10000 + ((r * 256 * 256 + g * 256 + b) * 0.1)
+			return -10000 + ((r * 256 * 256 + g * 256 + b) * 0.1);
+		}
+		return 0;
+	},
+	
+	// Fetch a single tile
+	fetchTile: async function(x, y, z) {
+		const key = `${z}/${x}/${y}`;
+		
+		// Check cache
+		if (this.tileCache.has(key)) {
+			return this.tileCache.get(key);
+		}
+		
+		const url = this.config.tileUrl
+			.replace('{z}', z)
+			.replace('{x}', x)
+			.replace('{y}', y);
+		
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			
+			const blob = await response.blob();
+			const bitmap = await createImageBitmap(blob);
+			
+			// Draw to canvas to get pixel data
+			const canvas = document.createElement('canvas');
+			canvas.width = this.config.tileSize;
+			canvas.height = this.config.tileSize;
+			const ctx = canvas.getContext('2d');
+			ctx.drawImage(bitmap, 0, 0);
+			
+			const imageData = ctx.getImageData(0, 0, this.config.tileSize, this.config.tileSize);
+			const elevationData = new Float32Array(this.config.tileSize * this.config.tileSize);
+			
+			// Decode elevation for each pixel
+			for (let i = 0; i < imageData.data.length; i += 4) {
+				const r = imageData.data[i];
+				const g = imageData.data[i + 1];
+				const b = imageData.data[i + 2];
+				const elevation = this.decodeElevation(r, g, b);
+				elevationData[i / 4] = elevation;
+			}
+			
+			const tileData = {
+				x, y, z,
+				elevations: elevationData,
+				bounds: {
+					sw: this.tileToLatLon(x, y + 1, z),
+					ne: this.tileToLatLon(x + 1, y, z)
+				}
+			};
+			
+			this.tileCache.set(key, tileData);
+			return tileData;
+			
+		} catch (error) {
+			console.error(`Failed to fetch tile ${key}:`, error);
+			return null;
+		}
+	},
+	
+	// Get elevation data for a region
+	getElevationData: async function(bounds, zoom = null) {
+		// bounds = { north, south, east, west } in degrees
+		
+		// Auto-determine zoom if not specified
+		if (zoom === null) {
+			const latRange = bounds.north - bounds.south;
+			const lonRange = bounds.east - bounds.west;
+			const maxRange = Math.max(latRange, lonRange);
+			
+			// Rough heuristic for zoom level
+			if (maxRange > 10) zoom = 6;
+			else if (maxRange > 5) zoom = 8;
+			else if (maxRange > 1) zoom = 10;
+			else if (maxRange > 0.5) zoom = 12;
+			else if (maxRange > 0.1) zoom = 13;
+			else zoom = 14;
+			
+			zoom = Math.min(zoom, this.config.maxZoom);
+		}
+		
+		// Get tile bounds
+		const nwTile = this.latLonToTile(bounds.north, bounds.west, zoom);
+		const seTile = this.latLonToTile(bounds.south, bounds.east, zoom);
+		
+		const tiles = [];
+		const promises = [];
+		
+		// Fetch all required tiles
+		for (let x = nwTile.x; x <= seTile.x; x++) {
+			for (let y = nwTile.y; y <= seTile.y; y++) {
+				promises.push(this.fetchTile(x, y, zoom));
+			}
+		}
+		
+		const tileResults = await Promise.all(promises);
+		const validTiles = tileResults.filter(t => t !== null);
+		
+		if (validTiles.length === 0) {
+			throw new Error('No elevation data available for this region');
+		}
+		
+		// Combine tiles into a single elevation grid
+		const tilesX = seTile.x - nwTile.x + 1;
+		const tilesY = seTile.y - nwTile.y + 1;
+		const width = tilesX * this.config.tileSize;
+		const height = tilesY * this.config.tileSize;
+		const elevations = new Float32Array(width * height);
+		
+		// Copy each tile's data into the combined array
+		validTiles.forEach(tile => {
+			const tileOffsetX = (tile.x - nwTile.x) * this.config.tileSize;
+			const tileOffsetY = (tile.y - nwTile.y) * this.config.tileSize;
+			
+			for (let y = 0; y < this.config.tileSize; y++) {
+				for (let x = 0; x < this.config.tileSize; x++) {
+					const srcIndex = y * this.config.tileSize + x;
+					const dstX = tileOffsetX + x;
+					const dstY = tileOffsetY + y;
+					const dstIndex = dstY * width + dstX;
+					elevations[dstIndex] = tile.elevations[srcIndex];
+				}
+			}
+		});
+		
+		// Calculate actual bounds of the data
+		const actualBounds = {
+			north: this.tileToLatLon(nwTile.x, nwTile.y, zoom).lat,
+			south: this.tileToLatLon(seTile.x, seTile.y + 1, zoom).lat,
+			west: this.tileToLatLon(nwTile.x, nwTile.y + 1, zoom).lon,
+			east: this.tileToLatLon(seTile.x + 1, seTile.y, zoom).lon
+		};
+		
+		return {
+			elevations,
+			width,
+			height,
+			bounds: actualBounds,
+			zoom,
+			// Helper method to get elevation at specific lat/lon
+			getElevationAt: function(lat, lon) {
+				if (lat < this.bounds.south || lat > this.bounds.north ||
+					lon < this.bounds.west || lon > this.bounds.east) {
+					return null;
+				}
+				
+				const x = (lon - this.bounds.west) / (this.bounds.east - this.bounds.west) * (this.width - 1);
+				const y = (this.bounds.north - lat) / (this.bounds.north - this.bounds.south) * (this.height - 1);
+				
+				// Bilinear interpolation
+				const x0 = Math.floor(x);
+				const x1 = Math.min(x0 + 1, this.width - 1);
+				const y0 = Math.floor(y);
+				const y1 = Math.min(y0 + 1, this.height - 1);
+				
+				const fx = x - x0;
+				const fy = y - y0;
+				
+				const v00 = this.elevations[y0 * this.width + x0];
+				const v10 = this.elevations[y0 * this.width + x1];
+				const v01 = this.elevations[y1 * this.width + x0];
+				const v11 = this.elevations[y1 * this.width + x1];
+				
+				const v0 = v00 * (1 - fx) + v10 * fx;
+				const v1 = v01 * (1 - fx) + v11 * fx;
+				
+				return v0 * (1 - fy) + v1 * fy;
+			}
+		};
+	},
+	
+	// Clear cache
+	clearCache: function() {
+		this.tileCache.clear();
+	},
+	
+	// Example usage method
+	example: async function() {
+		// Example: Get elevation data for Mount Fuji area
+		const bounds = {
+			north: 35.4,
+			south: 35.3,
+			east: 138.8,
+			west: 138.7
+		};
+		
+		try {
+			const demData = await this.getElevationData(bounds);
+			console.log('DEM data:', demData);
+			console.log('Elevation at center:', demData.getElevationAt(35.35, 138.75));
+			return demData;
+		} catch (error) {
+			console.error('Failed to get elevation data:', error);
+		}
+	}
+};

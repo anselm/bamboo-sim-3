@@ -13,10 +13,14 @@ export class BambooSimApp {
         this.animationId = null;
         this.statsCanvas = null;
         this.activeTab = '3d';
+        this.demVolume = null;
         
         // Initialize volume service early so 3D view is ready
         console.log('BambooSimApp: Initializing volume service...');
         sys(volume_service);
+        
+        // Load DEM data automatically
+        this.loadDEM();
         
         this.initializeUI();
         this.bindEvents();
@@ -49,8 +53,6 @@ export class BambooSimApp {
             document.getElementById('speedValue').textContent = e.target.value + 'x';
         });
         
-        // DEM demo button
-        document.getElementById('demBtn')?.addEventListener('click', () => this.loadDEMDemo());
     }
     
     switchTab(tabName) {
@@ -83,6 +85,12 @@ export class BambooSimApp {
         this.plot.field.width = 100;
         this.plot.field.depth = 100;
         this.plot.field.ENABLE_INTERCROPPING = true;
+        
+        // Pass DEM data to plot if available
+        if (this.demVolume && this.demVolume.volume.demData) {
+            this.plot.demData = this.demVolume.volume.demData;
+            console.log('BambooSimApp: Passed DEM data to plot');
+        }
         
         // Register plot with sys
         sys(this.plot);
@@ -196,31 +204,32 @@ export class BambooSimApp {
         this.updateStats();
     }
     
-    async loadDEMDemo() {
-        console.log('BambooSimApp: Loading DEM demo...');
-        
-        // Show loading indicator
-        const demBtn = document.getElementById('demBtn');
-        const originalText = demBtn.textContent;
-        demBtn.textContent = 'Loading DEM...';
-        demBtn.disabled = true;
+    async loadDEM() {
+        console.log('BambooSimApp: Loading DEM data...');
         
         try {
-            // Load Grand Canyon DEM
-            const demVolume = await dem_service.testGrandCanyonVolume();
-            if (demVolume) {
+            // Load DEM for the plot area (Grand Canyon for now)
+            this.demVolume = await dem_service.getDemVolume({
+                bounds: {
+                    north: 36.063,
+                    south: 36.053,
+                    east: -112.103,
+                    west: -112.113
+                },
+                position: [50, 0, 50],
+                sceneSize: [100, 100],  // Match plot size
+                heightScale: 0.01
+            });
+            
+            if (this.demVolume) {
                 console.log('BambooSimApp: Sending DEM volume to sys()');
-                sys(demVolume);
+                sys(this.demVolume);
                 console.log('BambooSimApp: DEM loaded successfully');
             } else {
                 console.error('BambooSimApp: DEM volume was null');
             }
         } catch (error) {
             console.error('BambooSimApp: Failed to load DEM:', error);
-            alert('Failed to load DEM data. Please check console for details.');
-        } finally {
-            demBtn.textContent = originalText;
-            demBtn.disabled = false;
         }
     }
 }

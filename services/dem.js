@@ -240,21 +240,28 @@ export const dem_service = {
 		}
 	},
 	
-	// Test Grand Canyon DEM as volume object
-	testGrandCanyonVolume: async function() {
-		// Small area in Grand Canyon (about 1km x 1km)
-		// South Rim visitor center area
-		const bounds = {
-			north: 36.063,
-			south: 36.053,
-			east: -112.103,
-			west: -112.113
-		};
+	// General function to create DEM volume
+	getDemVolume: async function(params = {}) {
+		// Default parameters
+		const {
+			bounds = {
+				north: 36.063,  // Grand Canyon default
+				south: 36.053,
+				east: -112.103,
+				west: -112.113
+			},
+			zoom = 14,
+			id = 'terrain-dem',
+			position = [50, 0, 50],
+			sceneSize = [100, 100],  // width, depth in scene units
+			heightScale = 0.01,
+			color = 0x8B4513  // Saddle brown
+		} = params;
 		
 		try {
-			console.log('DEM Service: Fetching Grand Canyon DEM data...');
+			console.log('DEM Service: Fetching DEM data...');
 			console.log('DEM Service: Bounds:', bounds);
-			const demData = await this.getElevationData(bounds, 14); // High zoom for detail
+			const demData = await this.getElevationData(bounds, zoom);
 			console.log('DEM Service: Received data - width:', demData.width, 'height:', demData.height);
 			
 			// Find min/max elevations for scaling
@@ -270,24 +277,25 @@ export const dem_service = {
 			
 			// Create volume object for sys()
 			const demVolume = {
-				id: 'grand-canyon-dem',
+				id: id,
 				kind: 'dem',
 				volume: {
 					shape: 'dem',
-					xyz: [50, 0, 50], // Center in scene
+					xyz: position,
 					hwd: [
-						(maxElev - minElev) * 0.01, // Scale height down for visibility
-						100, // Width in scene units
-						100  // Depth in scene units
+						(maxElev - minElev) * heightScale,
+						sceneSize[0],
+						sceneSize[1]
 					],
-					color: 0x8B4513, // Saddle brown for terrain
+					color: color,
 					demData: {
 						elevations: demData.elevations,
 						width: demData.width,
 						height: demData.height,
 						minElev: minElev,
 						maxElev: maxElev,
-						bounds: demData.bounds
+						bounds: demData.bounds,
+						heightScale: heightScale
 					}
 				}
 			};
@@ -295,8 +303,20 @@ export const dem_service = {
 			console.log('DEM Service: Created volume object:', demVolume);
 			return demVolume;
 		} catch (error) {
-			console.error('DEM Service: Failed to create Grand Canyon DEM volume:', error);
+			console.error('DEM Service: Failed to create DEM volume:', error);
 			return null;
 		}
+	},
+	
+	// Test Grand Canyon DEM as volume object (now uses getDemVolume)
+	testGrandCanyonVolume: async function() {
+		return this.getDemVolume({
+			bounds: {
+				north: 36.063,
+				south: 36.053,
+				east: -112.103,
+				west: -112.113
+			}
+		});
 	}
 };

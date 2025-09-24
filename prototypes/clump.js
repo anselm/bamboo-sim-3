@@ -63,7 +63,6 @@ prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 	
 	// Distribute culms within the clump area (up to 12m diameter)
 	// Using a circular distribution pattern
-	const clumpRadius = this.clump.CLUMP_MAX_WIDTH / 2
 	
 	for(let i = 0; i < max; i++) {
 		const culm = deepClone(prototypical_dendrocalamus_asper_culm)

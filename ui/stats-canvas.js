@@ -28,7 +28,7 @@ export class StatsCanvas {
         
         // Draw main chart area
         const chartTop = 40;
-        const chartBottom = height - 180; // Leave space for legend
+        const chartBottom = height - 40; // Less space needed since legend is in HTML
         const chartHeight = chartBottom - chartTop;
         const chartLeft = 60;
         const chartRight = width - 40;
@@ -74,11 +74,8 @@ export class StatsCanvas {
         // Draw axes labels
         this.drawAxes(chartLeft, chartTop, chartWidth, chartHeight, yearlyData.years, maxValue);
         
-        // Draw legend
-        this.drawLegend(metrics, chartLeft, chartBottom + 40);
-        
-        // Draw summary text
-        this.drawSummary(yearlyData, chartLeft, chartBottom + 120);
+        // Update HTML legend/table
+        this.updateHTMLLegend(metrics, yearlyData);
         
         // Draw current year indicator
         if (currentDay > 0) {
@@ -251,45 +248,4 @@ export class StatsCanvas {
         ctx.restore();
     }
     
-    drawLegend(metrics, x, y) {
-        const ctx = this.ctx;
-        const columnWidth = 200;
-        const rowHeight = 20;
-        
-        ctx.font = '12px sans-serif';
-        
-        metrics.forEach((metric, i) => {
-            const col = Math.floor(i / 4);
-            const row = i % 4;
-            const px = x + col * columnWidth;
-            const py = y + row * rowHeight;
-            
-            // Color box
-            ctx.fillStyle = metric.color;
-            ctx.fillRect(px, py - 10, 15, 15);
-            
-            // Label
-            ctx.fillStyle = '#ccc';
-            ctx.fillText(metric.label, px + 20, py);
-        });
-    }
-    
-    drawSummary(yearlyData, x, y) {
-        const ctx = this.ctx;
-        ctx.font = '11px sans-serif';
-        ctx.fillStyle = '#999';
-        
-        const lastIndex = yearlyData.years.length - 1;
-        if (lastIndex >= 0) {
-            const summary = `Year ${yearlyData.years[lastIndex]}: ` +
-                `Net Income: $${yearlyData.netIncome[lastIndex].toFixed(0)} | ` +
-                `Total Revenue: $${yearlyData.totalIncome[lastIndex].toFixed(0)} | ` +
-                `Total Cost: $${yearlyData.totalCost[lastIndex].toFixed(0)} | ` +
-                `CO2: ${yearlyData.co2[lastIndex].toFixed(0)}kg`;
-            
-            ctx.fillText(summary, x, y);
-        }
-        
-        ctx.fillText('All metrics normalized to fit on single scale. Actual values shown in legend.', x, y + 15);
-    }
 }

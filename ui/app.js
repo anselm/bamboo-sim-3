@@ -154,6 +154,7 @@ export class BambooSimApp {
     }
     
     simulationStep(days = 1) {
+        // Always step one day at a time, even when running at higher speeds
         for (let i = 0; i < days; i++) {
             sys({step: 1});
             this.currentDay++;

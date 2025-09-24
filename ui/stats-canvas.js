@@ -17,14 +17,25 @@ export class StatsCanvas {
         const width = this.canvas.width;
         const height = this.canvas.height;
         
+        console.log('StatsCanvas update called with:', { 
+            statsLength: stats.days?.length || 0, 
+            currentDay,
+            width,
+            height 
+        });
+        
         // Clear canvas
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, width, height);
         
-        if (!stats.days || stats.days.length === 0) return;
+        if (!stats.days || stats.days.length === 0) {
+            console.log('No stats data available yet');
+            return;
+        }
         
         // Calculate yearly data from daily stats
         const yearlyData = this.calculateYearlyData(stats);
+        console.log('Yearly data calculated:', yearlyData);
         
         // Draw main chart area
         const chartTop = 40;
@@ -53,9 +64,12 @@ export class StatsCanvas {
         let maxValue = 0;
         metrics.forEach(metric => {
             metric.data.forEach(value => {
-                maxValue = Math.max(maxValue, value * metric.scale);
+                maxValue = Math.max(maxValue, Math.abs(value * metric.scale));
             });
         });
+        
+        // Ensure minimum scale
+        if (maxValue === 0) maxValue = 100;
         
         // Draw all metrics
         metrics.forEach(metric => {
@@ -298,13 +312,13 @@ export class StatsCanvas {
                 {
                     color: metrics[2].color,
                     label: 'Bamboo Harvested',
-                    value: yearlyData.totalHarvest[lastIndex] ? yearlyData.totalHarvest[lastIndex].toFixed(0) : '0',
+                    value: yearlyData.bambooHarvested.reduce((a, b) => a + b, 0).toFixed(0),
                     perYear: yearlyBambooHarvest.toFixed(0) + ' culms'
                 },
                 {
                     color: metrics[3].color,
                     label: 'Coffee Harvested',
-                    value: yearlyData.coffeeHarvested[lastIndex].toFixed(1) + 'kg',
+                    value: yearlyData.coffeeHarvested.reduce((a, b) => a + b, 0).toFixed(1) + 'kg',
                     perYear: yearlyCoffeeHarvest.toFixed(1) + 'kg'
                 },
                 {
@@ -356,7 +370,7 @@ export class StatsCanvas {
             
             // Calculate some additional stats
             const totalClumps = Math.floor(100 * 100 / 64); // Assuming 8m spacing
-            const totalCoffeePlants = totalClumps * 10; // Assuming 10 plants per row
+            const totalCoffeePlants = Math.floor(totalClumps * 0.75 * 10); // Assuming 10 plants per row, 75% coverage
             const netProfit = yearlyData.netIncome[lastIndex];
             const profitPerHectare = netProfit / (100 * 100 / 10000);
             

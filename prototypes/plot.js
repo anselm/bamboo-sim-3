@@ -42,7 +42,8 @@ export const prototypical_plot = {
 		co2Sequestered: [],
 		energyCostJoules: [],
 		coffeeHeight: [],
-		coffeeHarvested: []
+		coffeeHarvested: [],
+		totalHarvest: [] // Add this for compatibility
 	},
 	
 	// Rendering information
@@ -79,7 +80,8 @@ prototypical_plot.onreset = function() {
 		co2Sequestered: [],
 		energyCostJoules: [],
 		coffeeHeight: [],
-		coffeeHarvested: []
+		coffeeHarvested: [],
+		totalHarvest: [] // Add this for compatibility
 	}
 	const ref = prototypical_dendrocalamus_asper_clump
 	let counter = 1

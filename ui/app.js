@@ -71,8 +71,14 @@ export class BambooSimApp {
         this.activeTab = tabName;
         
         // Initialize stats canvas if switching to stats tab
-        if (tabName === 'stats' && !this.statsCanvas) {
-            this.statsCanvas = new StatsCanvas('statsCanvas');
+        if (tabName === 'stats') {
+            if (!this.statsCanvas) {
+                this.statsCanvas = new StatsCanvas('statsCanvas');
+            }
+            // Update stats immediately when switching to stats tab
+            if (this.plot && this.plot.stats) {
+                this.statsCanvas.update(this.plot.stats, this.currentDay);
+            }
         }
     }
     

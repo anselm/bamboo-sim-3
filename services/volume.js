@@ -20,9 +20,9 @@ export const volume_service = {
 		this.scene = new THREE.Scene();
 		this.scene.background = new THREE.Color(0x87CEEB); // Sky blue
 		
-		// Create camera
+		// Create camera with wider field of view
 		this.camera = new THREE.PerspectiveCamera(
-			75, 
+			90,  // Wider FOV (was 75)
 			window.innerWidth / window.innerHeight, 
 			0.1, 
 			1000

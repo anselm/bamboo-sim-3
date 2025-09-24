@@ -13,6 +13,10 @@ export class BambooSimApp {
         this.statsCanvas = null;
         this.activeTab = '3d';
         
+        // Initialize volume service early so 3D view is ready
+        console.log('BambooSimApp: Initializing volume service...');
+        sys(volume_service);
+        
         this.initializeUI();
         this.bindEvents();
     }
@@ -67,8 +71,7 @@ export class BambooSimApp {
     }
     
     initializePlot() {
-        // Initialize volume service first
-        sys(volume_service);
+        console.log('BambooSimApp: Initializing plot...');
         
         // Create plot
         this.plot = deepClone(prototypical_plot);
@@ -178,19 +181,13 @@ export class BambooSimApp {
     }
     
     reset() {
+        console.log('BambooSimApp: Resetting simulation...');
         this.pause();
         this.currentDay = 0;
         this.plot = null;
         
-        // Clear volume service meshes
-        if (volume_service.meshes) {
-            volume_service.meshes.forEach(mesh => {
-                volume_service.scene.remove(mesh);
-                mesh.geometry.dispose();
-                mesh.material.dispose();
-            });
-            volume_service.meshes.clear();
-        }
+        // Send reset command to volume service through sys
+        sys({ volume: { command: 'reset' } });
         
         this.updateStats();
     }

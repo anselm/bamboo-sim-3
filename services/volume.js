@@ -84,8 +84,28 @@ export const volume_service = {
 	},
 	
 	onentity: function(entity) {
+		// Handle volume commands
+		if (entity.volume && entity.volume.command) {
+			console.log('Volume service: Received command:', entity.volume.command);
+			
+			if (entity.volume.command === 'reset') {
+				// Clear all meshes
+				this.meshes.forEach(mesh => {
+					this.scene.remove(mesh);
+					mesh.geometry.dispose();
+					mesh.material.dispose();
+				});
+				this.meshes.clear();
+				this.entities.clear();
+				console.log('Volume service: Reset complete');
+			}
+			return;
+		}
+		
 		// Only process entities with volume information
 		if (!entity.volume) return;
+		
+		console.log('Volume service: Processing entity', entity.id, 'with shape', entity.volume.shape);
 		
 		// Store reference to entity
 		this.entities.set(entity.id, entity);

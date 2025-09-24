@@ -252,8 +252,10 @@ export const dem_service = {
 		};
 		
 		try {
-			console.log('Fetching Grand Canyon DEM data...');
+			console.log('DEM Service: Fetching Grand Canyon DEM data...');
+			console.log('DEM Service: Bounds:', bounds);
 			const demData = await this.getElevationData(bounds, 14); // High zoom for detail
+			console.log('DEM Service: Received data - width:', demData.width, 'height:', demData.height);
 			
 			// Find min/max elevations for scaling
 			let minElev = Infinity;
@@ -264,7 +266,7 @@ export const dem_service = {
 				if (elev > maxElev) maxElev = elev;
 			}
 			
-			console.log(`Elevation range: ${minElev}m to ${maxElev}m`);
+			console.log(`DEM Service: Elevation range: ${minElev}m to ${maxElev}m`);
 			
 			// Create volume object for sys()
 			const demVolume = {
@@ -290,9 +292,10 @@ export const dem_service = {
 				}
 			};
 			
+			console.log('DEM Service: Created volume object:', demVolume);
 			return demVolume;
 		} catch (error) {
-			console.error('Failed to create Grand Canyon DEM volume:', error);
+			console.error('DEM Service: Failed to create Grand Canyon DEM volume:', error);
 			return null;
 		}
 	}

@@ -113,6 +113,35 @@ export const volume_service = {
 						16, 16              // segments
 					);
 					break;
+				case 'dem':
+					// Create terrain geometry from DEM data
+					if (vol.demData) {
+						const dem = vol.demData;
+						geometry = new THREE.PlaneGeometry(
+							vol.hwd[1], // width
+							vol.hwd[2], // depth
+							dem.width - 1, // width segments
+							dem.height - 1  // height segments
+						);
+						
+						// Modify vertices based on elevation data
+						const vertices = geometry.attributes.position.array;
+						for (let i = 0; i < dem.elevations.length; i++) {
+							const elev = dem.elevations[i];
+							const normalizedElev = (elev - dem.minElev) / (dem.maxElev - dem.minElev);
+							vertices[i * 3 + 2] = normalizedElev * vol.hwd[0]; // Set Z (height)
+						}
+						
+						// Update normals for proper lighting
+						geometry.computeVertexNormals();
+						
+						// Rotate to be horizontal (PlaneGeometry starts vertical)
+						geometry.rotateX(-Math.PI / 2);
+					} else {
+						// Fallback if no DEM data
+						geometry = new THREE.BoxGeometry(vol.hwd[1], 0.1, vol.hwd[2]);
+					}
+					break;
 				case 'box':
 				default:
 					geometry = new THREE.BoxGeometry(
@@ -142,6 +171,9 @@ export const volume_service = {
 		// For boxes (like the plot), center at ground level
 		if (vol.shape === 'box' && entity.kind === 'plot') {
 			mesh.position.set(vol.hwd[1]/2, vol.xyz[1], vol.hwd[2]/2);
+		} else if (vol.shape === 'dem') {
+			// DEM terrain is already positioned correctly
+			mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 		} else {
 			mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
 		}
@@ -169,6 +201,9 @@ export const volume_service = {
 			// Update position
 			if (vol.shape === 'box' && entity.kind === 'plot') {
 				mesh.position.set(vol.hwd[1]/2, vol.xyz[1], vol.hwd[2]/2);
+			} else if (vol.shape === 'dem') {
+				// DEM terrain is already positioned correctly
+				mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 			} else {
 				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
 			}

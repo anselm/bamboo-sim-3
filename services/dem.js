@@ -238,5 +238,62 @@ export const dem_service = {
 		} catch (error) {
 			console.error('Failed to get elevation data:', error);
 		}
+	},
+	
+	// Test Grand Canyon DEM as volume object
+	testGrandCanyonVolume: async function() {
+		// Small area in Grand Canyon (about 1km x 1km)
+		// South Rim visitor center area
+		const bounds = {
+			north: 36.063,
+			south: 36.053,
+			east: -112.103,
+			west: -112.113
+		};
+		
+		try {
+			console.log('Fetching Grand Canyon DEM data...');
+			const demData = await this.getElevationData(bounds, 14); // High zoom for detail
+			
+			// Find min/max elevations for scaling
+			let minElev = Infinity;
+			let maxElev = -Infinity;
+			for (let i = 0; i < demData.elevations.length; i++) {
+				const elev = demData.elevations[i];
+				if (elev < minElev) minElev = elev;
+				if (elev > maxElev) maxElev = elev;
+			}
+			
+			console.log(`Elevation range: ${minElev}m to ${maxElev}m`);
+			
+			// Create volume object for sys()
+			const demVolume = {
+				id: 'grand-canyon-dem',
+				kind: 'dem',
+				volume: {
+					shape: 'dem',
+					xyz: [50, 0, 50], // Center in scene
+					hwd: [
+						(maxElev - minElev) * 0.01, // Scale height down for visibility
+						100, // Width in scene units
+						100  // Depth in scene units
+					],
+					color: 0x8B4513, // Saddle brown for terrain
+					demData: {
+						elevations: demData.elevations,
+						width: demData.width,
+						height: demData.height,
+						minElev: minElev,
+						maxElev: maxElev,
+						bounds: demData.bounds
+					}
+				}
+			};
+			
+			return demVolume;
+		} catch (error) {
+			console.error('Failed to create Grand Canyon DEM volume:', error);
+			return null;
+		}
 	}
 };

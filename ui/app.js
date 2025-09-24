@@ -3,6 +3,7 @@ import { sys } from '../utils/sys.js';
 import { prototypical_plot } from '../prototypes/plot.js';
 import { volume_service } from '../services/volume.js';
 import { StatsCanvas } from './stats-canvas.js';
+import { dem_service } from '../services/dem.js';
 
 export class BambooSimApp {
     constructor() {
@@ -47,6 +48,9 @@ export class BambooSimApp {
         document.getElementById('speedControl').addEventListener('input', (e) => {
             document.getElementById('speedValue').textContent = e.target.value + 'x';
         });
+        
+        // DEM demo button
+        document.getElementById('demBtn')?.addEventListener('click', () => this.loadDEMDemo());
     }
     
     switchTab(tabName) {
@@ -190,5 +194,33 @@ export class BambooSimApp {
         sys({ volume: { command: 'reset' } });
         
         this.updateStats();
+    }
+    
+    async loadDEMDemo() {
+        console.log('BambooSimApp: Loading DEM demo...');
+        
+        // Show loading indicator
+        const demBtn = document.getElementById('demBtn');
+        const originalText = demBtn.textContent;
+        demBtn.textContent = 'Loading DEM...';
+        demBtn.disabled = true;
+        
+        try {
+            // Load Grand Canyon DEM
+            const demVolume = await dem_service.testGrandCanyonVolume();
+            if (demVolume) {
+                console.log('BambooSimApp: Sending DEM volume to sys()');
+                sys(demVolume);
+                console.log('BambooSimApp: DEM loaded successfully');
+            } else {
+                console.error('BambooSimApp: DEM volume was null');
+            }
+        } catch (error) {
+            console.error('BambooSimApp: Failed to load DEM:', error);
+            alert('Failed to load DEM data. Please check console for details.');
+        } finally {
+            demBtn.textContent = originalText;
+            demBtn.disabled = false;
+        }
     }
 }

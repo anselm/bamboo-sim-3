@@ -242,8 +242,8 @@ export const volume_service = {
 			if (vol.shape === 'cylinder') {
 				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
 			} else if (vol.shape === 'sphere' && entity.kind === 'clump') {
-				// For clump spheres, position at ground level + radius
-				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0], vol.xyz[2]);
+				// For clump spheres, position directly at ground level (half buried)
+				mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 			} else if (vol.shape === 'sphere') {
 				// For other spheres (coffee), position at ground level + radius
 				mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
@@ -283,8 +283,8 @@ export const volume_service = {
 				if (vol.shape === 'cylinder') {
 					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);
 				} else if (vol.shape === 'sphere' && entity.kind === 'clump') {
-					// For clump spheres, position at ground level + radius
-					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0], vol.xyz[2]);
+					// For clump spheres, position directly at ground level (half buried)
+					mesh.position.set(vol.xyz[0], vol.xyz[1], vol.xyz[2]);
 				} else if (vol.shape === 'sphere') {
 					// For other spheres (coffee), position at ground level + radius
 					mesh.position.set(vol.xyz[0], vol.xyz[1] + vol.hwd[0]/2, vol.xyz[2]);

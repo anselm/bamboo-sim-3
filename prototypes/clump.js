@@ -54,8 +54,8 @@ prototypical_dendrocalamus_asper_clump.onreset = function(plot) {
 	clump.clump.totalCO2 = 0
 	clump.clump.totalCostJoules = clump.clump.JOULES_PER_CLUMP_PLANTING // Initial planting cost
 	
-	// Set clump sphere size to encompass the clump area
-	const clumpRadius = this.clump.CLUMP_MAX_WIDTH / 2
+	// Set clump sphere size smaller than the actual clump area
+	const clumpRadius = this.clump.CLUMP_MAX_WIDTH / 4  // Make it half the size
 	clump.volume.hwd = [clumpRadius, clumpRadius, clumpRadius] // sphere uses radius for all dimensions
 	
 	const max = this.clump.CULM_MAX

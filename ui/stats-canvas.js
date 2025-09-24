@@ -248,4 +248,133 @@ export class StatsCanvas {
         ctx.restore();
     }
     
+    updateHTMLLegend(metrics, yearlyData) {
+        // Get or create the stats table container
+        let container = document.getElementById('statsTable');
+        if (!container) {
+            const statsContent = document.querySelector('[data-content="stats"]');
+            container = document.createElement('div');
+            container.id = 'statsTable';
+            container.className = 'mt-4 bg-gray-800 rounded p-4';
+            statsContent.appendChild(container);
+        }
+        
+        // Get current values (last year or interpolated current)
+        const lastIndex = yearlyData.years.length - 1;
+        const hasData = lastIndex >= 0;
+        
+        // Build the table HTML
+        let html = '<table class="w-full text-sm">';
+        html += '<thead><tr class="border-b border-gray-700">';
+        html += '<th class="text-left pb-2">Metric</th>';
+        html += '<th class="text-right pb-2">Current Value</th>';
+        html += '<th class="text-right pb-2">Per Year</th>';
+        html += '</tr></thead><tbody>';
+        
+        if (hasData) {
+            // Calculate per-year values
+            const currentYear = yearlyData.years[lastIndex];
+            const yearlyBambooHarvest = lastIndex > 0 ? 
+                yearlyData.bambooHarvested[lastIndex] : 
+                yearlyData.bambooHarvested[0];
+            const yearlyCoffeeHarvest = lastIndex > 0 ? 
+                yearlyData.coffeeHarvested[lastIndex] : 
+                yearlyData.coffeeHarvested[0];
+            
+            // Create rows for each metric
+            const rows = [
+                {
+                    color: metrics[0].color,
+                    label: 'Bamboo Height',
+                    value: yearlyData.bambooHeight[lastIndex].toFixed(2) + 'm',
+                    perYear: '-'
+                },
+                {
+                    color: metrics[1].color,
+                    label: 'Coffee Height',
+                    value: yearlyData.coffeeHeight[lastIndex].toFixed(2) + 'm',
+                    perYear: '-'
+                },
+                {
+                    color: metrics[2].color,
+                    label: 'Bamboo Harvested',
+                    value: yearlyData.totalHarvest[lastIndex] ? yearlyData.totalHarvest[lastIndex].toFixed(0) : '0',
+                    perYear: yearlyBambooHarvest.toFixed(0) + ' culms'
+                },
+                {
+                    color: metrics[3].color,
+                    label: 'Coffee Harvested',
+                    value: yearlyData.coffeeHarvested[lastIndex].toFixed(1) + 'kg',
+                    perYear: yearlyCoffeeHarvest.toFixed(1) + 'kg'
+                },
+                {
+                    color: metrics[5].color,
+                    label: 'Total Income',
+                    value: '$' + yearlyData.totalIncome[lastIndex].toFixed(0),
+                    perYear: '$' + (lastIndex > 0 ? 
+                        (yearlyData.totalIncome[lastIndex] - yearlyData.totalIncome[lastIndex-1]).toFixed(0) : 
+                        yearlyData.totalIncome[0].toFixed(0))
+                },
+                {
+                    color: metrics[6].color,
+                    label: 'Total Cost',
+                    value: '$' + yearlyData.totalCost[lastIndex].toFixed(0),
+                    perYear: '$' + (lastIndex > 0 ? 
+                        (yearlyData.totalCost[lastIndex] - yearlyData.totalCost[lastIndex-1]).toFixed(0) : 
+                        yearlyData.totalCost[0].toFixed(0))
+                },
+                {
+                    color: metrics[4].color,
+                    label: 'Net Income',
+                    value: '$' + yearlyData.netIncome[lastIndex].toFixed(0),
+                    perYear: '$' + (lastIndex > 0 ? 
+                        (yearlyData.netIncome[lastIndex] - yearlyData.netIncome[lastIndex-1]).toFixed(0) : 
+                        yearlyData.netIncome[0].toFixed(0))
+                },
+                {
+                    color: metrics[7].color,
+                    label: 'CO2 Sequestered',
+                    value: yearlyData.co2[lastIndex].toFixed(0) + 'kg',
+                    perYear: (lastIndex > 0 ? 
+                        (yearlyData.co2[lastIndex] - yearlyData.co2[lastIndex-1]).toFixed(0) : 
+                        yearlyData.co2[0].toFixed(0)) + 'kg'
+                }
+            ];
+            
+            rows.forEach(row => {
+                html += '<tr class="border-b border-gray-700">';
+                html += `<td class="py-2"><span style="display:inline-block;width:12px;height:12px;background:${row.color};margin-right:8px;"></span>${row.label}</td>`;
+                html += `<td class="text-right py-2">${row.value}</td>`;
+                html += `<td class="text-right py-2 text-gray-400">${row.perYear}</td>`;
+                html += '</tr>';
+            });
+            
+            // Add summary row
+            html += '<tr class="border-t-2 border-gray-600">';
+            html += '<td class="pt-3 font-semibold" colspan="3">Year ' + currentYear + ' Summary</td>';
+            html += '</tr>';
+            
+            // Calculate some additional stats
+            const totalClumps = Math.floor(100 * 100 / 64); // Assuming 8m spacing
+            const totalCoffeePlants = totalClumps * 10; // Assuming 10 plants per row
+            const netProfit = yearlyData.netIncome[lastIndex];
+            const profitPerHectare = netProfit / (100 * 100 / 10000);
+            
+            html += '<tr>';
+            html += '<td class="text-gray-400" colspan="3">Total bamboo clumps: ' + totalClumps + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td class="text-gray-400" colspan="3">Total coffee plants: ' + totalCoffeePlants + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td class="text-gray-400" colspan="3">Profit per hectare: $' + profitPerHectare.toFixed(0) + '</td>';
+            html += '</tr>';
+        } else {
+            html += '<tr><td colspan="3" class="text-center py-4 text-gray-400">No data yet - start the simulation</td></tr>';
+        }
+        
+        html += '</tbody></table>';
+        
+        container.innerHTML = html;
+    }
 }

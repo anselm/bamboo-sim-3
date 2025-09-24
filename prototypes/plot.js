@@ -120,38 +120,34 @@ prototypical_plot.onreset = function() {
 		console.log(`\nAdding coffee rows for intercropping...`)
 		let coffeeCounter = 1
 		
-		// Place coffee rows in a grid pattern between bamboo clumps
-		// We'll place them at the midpoints between bamboo clumps
-		const coffeeOffset = minSpacing / 2
+		// Place coffee rows offset by half spacing from bamboo clumps
+		// This puts them in the gaps between bamboo
+		const coffeeOffsetX = startOffset + minSpacing / 2
+		const coffeeOffsetZ = startOffset + minSpacing / 2
 		
-		for (let x = coffeeOffset; x < plot.field.width; x += minSpacing) {
-			for (let z = coffeeOffset; z < plot.field.depth; z += minSpacing) {
-				// Check if this position would overlap with a bamboo clump
-				// Coffee rows are placed at the midpoints between bamboo clumps
-				const isBambooRow = ((x - startOffset + coffeeOffset) % minSpacing) < 1 && 
-				                   ((z - startOffset + coffeeOffset) % minSpacing) < 1
+		for (let x = coffeeOffsetX; x < plot.field.width; x += minSpacing) {
+			for (let z = coffeeOffsetZ; z < plot.field.depth; z += minSpacing) {
+				// No need to check for bamboo overlap since we're offset by half spacing
 				
-				if (!isBambooRow) {
-					// Check if coffee row would extend beyond plot boundaries
-					const rowLength = prototypical_coffee_row.coffeerow.PLANTS_PER_ROW * prototypical_coffee_row.coffeerow.PLANT_SPACING
-					if (x + rowLength > plot.field.width) continue
-					
-					const coffeeRow = deepClone(prototypical_coffee_row)
-					coffeeRow.parent = plot.id
-					coffeeRow.id = plot.id + "/coffee/" + coffeeCounter
-					
-					// Get elevation from DEM if available
-					let elevation = 0
-					if (plot.demData && plot.demData.getElevationAtSceneCoords) {
-						elevation = plot.demData.getElevationAtSceneCoords(x, z)
-					}
-					
-					coffeeRow.volume.xyz = [x, elevation, z]
-					plot.children.push(coffeeRow)
-					coffeeRow.plot = plot // Pass plot reference for DEM access
-					sys(coffeeRow)
-					coffeeCounter++
+				// Check if coffee row would extend beyond plot boundaries
+				const rowLength = prototypical_coffee_row.coffeerow.PLANTS_PER_ROW * prototypical_coffee_row.coffeerow.PLANT_SPACING
+				if (x + rowLength > plot.field.width) continue
+				
+				const coffeeRow = deepClone(prototypical_coffee_row)
+				coffeeRow.parent = plot.id
+				coffeeRow.id = plot.id + "/coffee/" + coffeeCounter
+				
+				// Get elevation from DEM if available
+				let elevation = 0
+				if (plot.demData && plot.demData.getElevationAtSceneCoords) {
+					elevation = plot.demData.getElevationAtSceneCoords(x, z)
 				}
+				
+				coffeeRow.volume.xyz = [x, elevation, z]
+				plot.children.push(coffeeRow)
+				coffeeRow.plot = plot // Pass plot reference for DEM access
+				sys(coffeeRow)
+				coffeeCounter++
 			}
 		}
 		

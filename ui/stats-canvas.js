@@ -108,7 +108,10 @@ export class StatsCanvas {
             co2: []
         };
         
-        let lastYearIndex = 0;
+        if (!stats.days || stats.days.length === 0) return yearlyData;
+        
+        let currentYear = 0;
+        let yearStartIndex = 0;
         let lastHarvest = 0;
         let lastCO2 = 0;
         let lastValue = 0;
@@ -120,30 +123,42 @@ export class StatsCanvas {
             const day = stats.days[i];
             const year = Math.floor(day / 365);
             
-            // Check if we've completed a year
-            if (year > yearlyData.years.length || i === stats.days.length - 1) {
-                // Calculate yearly values
-                const yearHarvest = stats.totalHarvest[i] - lastHarvest;
-                const yearCO2 = stats.co2Sequestered[i] - lastCO2;
-                const yearValue = stats.economicYield[i] - lastValue;
-                const yearCost = (stats.energyCostJoules[i] - lastCost) / 1000000 * 0.0278; // Convert to $
-                const yearCoffeeKg = (stats.coffeeHarvested ? stats.coffeeHarvested[i] : 0) - lastCoffeeKg;
+            // Check if we've moved to a new year or reached the end
+            if (year > currentYear || i === stats.days.length - 1) {
+                // Find the last day of the completed year (or current day if last iteration)
+                const yearEndIndex = (i === stats.days.length - 1) ? i : i - 1;
                 
-                yearlyData.years.push(year);
-                yearlyData.bambooHeight.push(stats.totalGrowth[i]);
-                yearlyData.coffeeHeight.push(stats.coffeeHeight ? stats.coffeeHeight[i] : 0);
-                yearlyData.bambooHarvested.push(yearHarvest);
-                yearlyData.coffeeHarvested.push(yearCoffeeKg);
-                yearlyData.totalIncome.push(stats.economicYield[i]);
-                yearlyData.totalCost.push(stats.energyCostJoules[i] / 1000000 * 0.0278);
-                yearlyData.netIncome.push(stats.economicYield[i] - (stats.energyCostJoules[i] / 1000000 * 0.0278));
-                yearlyData.co2.push(stats.co2Sequestered[i]);
+                // Only add data if we have at least some days in this year
+                if (yearEndIndex >= yearStartIndex) {
+                    // Calculate yearly values
+                    const yearHarvest = stats.totalHarvest[yearEndIndex] - lastHarvest;
+                    const yearCO2 = stats.co2Sequestered[yearEndIndex] - lastCO2;
+                    const yearValue = stats.economicYield[yearEndIndex] - lastValue;
+                    const yearCost = (stats.energyCostJoules[yearEndIndex] - lastCost) / 1000000 * 0.0278; // Convert to $
+                    const yearCoffeeKg = (stats.coffeeHarvested && stats.coffeeHarvested[yearEndIndex] !== undefined) 
+                        ? stats.coffeeHarvested[yearEndIndex] - lastCoffeeKg 
+                        : 0;
+                    
+                    yearlyData.years.push(currentYear);
+                    yearlyData.bambooHeight.push(stats.totalGrowth[yearEndIndex] || 0);
+                    yearlyData.coffeeHeight.push((stats.coffeeHeight && stats.coffeeHeight[yearEndIndex]) || 0);
+                    yearlyData.bambooHarvested.push(yearHarvest);
+                    yearlyData.coffeeHarvested.push(yearCoffeeKg);
+                    yearlyData.totalIncome.push(stats.economicYield[yearEndIndex] || 0);
+                    yearlyData.totalCost.push((stats.energyCostJoules[yearEndIndex] || 0) / 1000000 * 0.0278);
+                    yearlyData.netIncome.push((stats.economicYield[yearEndIndex] || 0) - ((stats.energyCostJoules[yearEndIndex] || 0) / 1000000 * 0.0278));
+                    yearlyData.co2.push(stats.co2Sequestered[yearEndIndex] || 0);
+                    
+                    // Update last values for next year's calculations
+                    lastHarvest = stats.totalHarvest[yearEndIndex] || 0;
+                    lastCO2 = stats.co2Sequestered[yearEndIndex] || 0;
+                    lastValue = stats.economicYield[yearEndIndex] || 0;
+                    lastCost = stats.energyCostJoules[yearEndIndex] || 0;
+                    lastCoffeeKg = (stats.coffeeHarvested && stats.coffeeHarvested[yearEndIndex]) || 0;
+                }
                 
-                lastHarvest = stats.totalHarvest[i];
-                lastCO2 = stats.co2Sequestered[i];
-                lastValue = stats.economicYield[i];
-                lastCost = stats.energyCostJoules[i];
-                lastCoffeeKg = stats.coffeeHarvested ? stats.coffeeHarvested[i] : 0;
+                currentYear = year;
+                yearStartIndex = i;
             }
         }
         
@@ -160,7 +175,8 @@ export class StatsCanvas {
         ctx.beginPath();
         
         for (let i = 0; i < data.length; i++) {
-            const px = x + (i / (data.length - 1)) * width;
+            // Scale x position based on 20 year span
+            const px = x + (i / 20) * width;
             const scaledValue = data[i] * scale;
             const py = y + height - (scaledValue / maxValue) * height;
             

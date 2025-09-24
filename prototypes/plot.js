@@ -177,6 +177,13 @@ prototypical_plot.onreset = function() {
 prototypical_plot.onstep = function(daysElapsed) {
 	const plot = this
 	
+	// Step all children (clumps and coffee rows)
+	plot.children.forEach(entity => {
+		if (entity.onstep) {
+			entity.onstep(daysElapsed)
+		}
+	})
+	
 	// Calculate statistics from current state
 	let totalBambooHeight = 0
 	let culmCount = 0

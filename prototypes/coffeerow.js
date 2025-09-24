@@ -28,6 +28,16 @@ export const prototypical_coffee_row = {
 	}
 }
 
+prototypical_coffee_row.onstep = function(daysElapsed) {
+	const self = this
+	// Step all child plants
+	self.children.forEach(plant => {
+		if (plant.onstep) {
+			plant.onstep(daysElapsed)
+		}
+	})
+}
+
 prototypical_coffee_row.onreset = function(plot) {
 	const row = this
 	row.children = []

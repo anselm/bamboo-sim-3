@@ -13,6 +13,17 @@ export const prototypical_dendrocalamus_asper_clump = {
 		description: 'A clump of giant bamboo containing up to 40 individual culms',
 		unsplashImage: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50'
 	},
+	
+	// Rendering information
+	volume: {
+		xyz: [ 0,0,0 ],
+		hwd: [ 0,0,0 ],
+		ypr: [ 0,0,0 ],
+		shape: 'sphere',
+		color: 0x228B22,  // Forest green
+		opacity: 0.3,     // Semi-transparent
+		material: 'glass' // Special material type
+	},
 
 	clump: {
 		CULM_MAX: 40,
